@@ -1,0 +1,57 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyVersion>2.2.0.0</AssemblyVersion>
+    <FileVersion>2.2.0.0</FileVersion>
+    <NeutralLanguage>en</NeutralLanguage>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Ionic.Zip" Version="1.9.1.8" />
+    <PackageReference Include="Joveler.Compression.ZLib" Version="4.1.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.2-beta1" />
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0-preview.5.22301.12" />
+    <PackageReference Include="System.Resources.Extensions" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Properties\Resources.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Properties\Resources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Remove="Resources\Active.png" />
+    <EmbeddedResource Include="Resources\Active.png" />
+    <None Remove="Resources\Backdrop.png" />
+    <EmbeddedResource Include="Resources\Backdrop.png" />
+    <None Remove="Resources\Counter.png" />
+    <EmbeddedResource Include="Resources\Counter.png" />
+    <None Remove="Resources\EmptyIcon.png" />
+    <EmbeddedResource Include="Resources\EmptyIcon.png" />
+    <None Remove="Resources\Formatted Text.png" />
+    <EmbeddedResource Include="Resources\Formatted Text.png" />
+    <None Remove="Resources\Lives.png" />
+    <EmbeddedResource Include="Resources\Lives.png" />
+    <None Remove="Resources\QandA.png" />
+    <EmbeddedResource Include="Resources\QandA.png" />
+    <None Remove="Resources\Score.png" />
+    <EmbeddedResource Include="Resources\Score.png" />
+    <None Remove="Resources\String.png" />
+    <EmbeddedResource Include="Resources\String.png" />
+    <None Remove="Resources\SubApp.png" />
+    <EmbeddedResource Include="Resources\SubApp.png" />
+  </ItemGroup>
+
+
+
+</Project>
