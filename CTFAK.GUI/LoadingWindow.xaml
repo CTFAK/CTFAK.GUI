@@ -1,0 +1,14 @@
+﻿<Window x:Class="Legacy_CTFAK_UI.LoadingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:Legacy_CTFAK_UI"
+        mc:Ignorable="d"
+        Title="LoadingWindow" Height="100" Width="200" Background="Black" ShowInTaskbar="False" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" BorderThickness="1" BorderBrush="#FFDF7226" WindowStyle="None">
+    <Grid>
+        <TextBlock Text="Loading..." Foreground="#FFDF7226" HorizontalAlignment="Center" FontFamily="Courier New" Margin="15"></TextBlock>
+        <ProgressBar x:Name="LoadingProgressBarOne" HorizontalAlignment="Center" Height="26" VerticalAlignment="Center" Width="127" BorderBrush="#FF2B2B2B" Background="#FF2A2A2A" Foreground="#FFDF7226" Maximum="1" Minimum="0" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" Visibility="Visible"/>
+        
+    </Grid>
+</Window>
