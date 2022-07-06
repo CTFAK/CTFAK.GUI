@@ -34,7 +34,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\CTFAK2.0\Core\CTFAK.Core\CTFAK.Core.csproj" />
+    <ProjectReference Include="..\CTFAK.Core\CTFAK.Core.csproj" />
   </ItemGroup>
 
 </Project>
