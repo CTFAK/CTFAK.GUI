@@ -13,7 +13,7 @@
         <Rectangle x:Name="SideBorder" HorizontalAlignment="Left" Height="530" Margin="699,0,0,0" VerticalAlignment="Center" Width="3" Fill="#FF0E0E0E" Panel.ZIndex="2"/>
         <Rectangle x:Name="TopBorder" HorizontalAlignment="Left" Height="3" Margin="0,27,0,0" VerticalAlignment="Top" Width="699" Fill="#FF0E0E0E" RenderTransformOrigin="0.5,0.5"/>
         <!-- Console -->
-        <TextBox x:Name="ConsoleTextBox" HorizontalAlignment="Left" Margin="702,0,0,0" TextWrapping="Wrap" Text="CONSOLE" VerticalAlignment="Bottom" Width="288" Height="502" Background="{x:Null}" Foreground="#FFDF7226" FontFamily="Courier New" FontSize="14" BorderBrush="{x:Null}" VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
+        <TextBox x:Name="ConsoleTextBox" HorizontalAlignment="Left" Margin="702,0,0,0" TextWrapping="Wrap" Text="CONSOLE" VerticalAlignment="Bottom" Width="288" Height="502" Background="{x:Null}" Foreground="#FFDF7226" FontFamily="Courier New" FontSize="12" BorderBrush="{x:Null}" VerticalScrollBarVisibility="Auto" IsReadOnly="True"/>
         <Label x:Name="ConsoleLabel" Content="CONSOLE" HorizontalAlignment="Left" Margin="804,0,0,0" VerticalAlignment="Top" Foreground="#FFDF7226" FontFamily="Courier New" FontSize="16" FontWeight="Bold"/>
         <!-- Tabs -->
         <Button x:Name="MainTabButton" Content="Main" HorizontalAlignment="Left" Margin="5,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="46" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="MainTabButton_Click">
@@ -24,42 +24,42 @@
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="MFADumpTabButton" Content="MFA Dump" HorizontalAlignment="Left" Margin="55,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="84" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="MFADumpTabButton_Click">
+        <Button x:Name="MFADumpTabButton" Content="MFA Dump" HorizontalAlignment="Left" Margin="55,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="84" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="MFADumpTabButton_Click" Visibility="Hidden">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="4                             "/>
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="PackDataTabButton" Content="Pack Data" HorizontalAlignment="Left" Margin="143,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="74" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="PackDataTabButton_Click">
+        <Button x:Name="PackDataTabButton" Content="Pack Data" HorizontalAlignment="Left" Margin="143,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="74" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="PackDataTabButton_Click" Visibility="Hidden">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="4                             "/>
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="ObjectsTabButton" Content="Objects" HorizontalAlignment="Left" Margin="221,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="60" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="ObjectsTabButton_Click">
+        <Button x:Name="ObjectsTabButton" Content="Objects" HorizontalAlignment="Left" Margin="221,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="60" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="ObjectsTabButton_Click" Visibility="Hidden">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="4                             "/>
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="SoundsTabButton" Content="Sounds" HorizontalAlignment="Left" Margin="285,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="60" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="SoundsTabButton_Click">
+        <Button x:Name="SoundsTabButton" Content="Sounds" HorizontalAlignment="Left" Margin="285,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="60" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="SoundsTabButton_Click" Visibility="Hidden">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="4                             "/>
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="PluginsTabButton" Content="Plugins" HorizontalAlignment="Left" Margin="349,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="59" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="PluginsTabButton_Click">
+        <Button x:Name="PluginsTabButton" Content="Plugins" HorizontalAlignment="Left" Margin="349,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="59" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="PluginsTabButton_Click" Visibility="Hidden">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="4                             "/>
                 </Style>
             </Button.Resources>
         </Button>
-        <Button x:Name="SettingsTabButton" Content="Settings" HorizontalAlignment="Left" Margin="412,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="64" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="SettingsTabButton_Click">
+        <Button x:Name="SettingsTabButton" Content="Settings" HorizontalAlignment="Left" Margin="630,1,0,0" VerticalAlignment="Top" Foreground="#FFCCCCCC" Background="#FF2A2A2A" BorderBrush="{x:Null}" Width="64" Panel.ZIndex="-1" Height="25" BorderThickness="1,1,1,1" ClipToBounds="True" RenderTransformOrigin="0.5,0.5" Click="SettingsTabButton_Click">
             <Button.Resources>
                 <Style TargetType="{x:Type Border}">
                     <Setter Property="CornerRadius" Value="4                             "/>
@@ -72,18 +72,15 @@
             <Button x:Name="SelectFileButton" Click="SelectFileButton_OnClick" Content="Select File" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="4" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold"/>
             <Label x:Name="MFAInfoTextBlock" HorizontalAlignment="Left" Content="Title: &#10;Copyright: &#10;Product Version: &#10;Build: &#10;Runtime Version: &#10;Number of Images: &#10;Number of Sounds: &#10;Number of Music: &#10;Unique FrameItems: &#10;Frame Count: &#10;Chunks Count: " VerticalAlignment="Center" Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="5" Canvas.Top="40" Width="269" Height="309" Visibility="Hidden"/>
             <Button x:Name="OpenDumpFolderButton" Content="Open Dump Folder" HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="354" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden"/>
-            <Button x:Name="DumpImagesButton" Content="Dump Images" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="386" HorizontalAlignment="Center" VerticalAlignment="Top" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden"/>
-            <Button x:Name="DumpSoundsButton" Content="Dump Sounds" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="418" HorizontalAlignment="Center" VerticalAlignment="Top" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden"/>
+            <Button x:Name="DumpImagesButton" Content="Dump Images" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="386" HorizontalAlignment="Center" VerticalAlignment="Top" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden" Click="DumpImages"/>
+            <Button x:Name="DumpSoundsButton" Content="Dump Sounds" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="418" HorizontalAlignment="Center" VerticalAlignment="Top" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden" Click="DumpSounds"/>
             <Button x:Name="DumpMusicButton" Content="Dump Music" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="450" HorizontalAlignment="Center" VerticalAlignment="Top" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden"/>
             <Label x:Name="ItemInfoTextBlock" Content="Name: &#xA;Id: &#xA;Flag: &#xA;Size: &#xA;&#xA;Loader Data: &#xA;Number of items: " Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="279" HorizontalAlignment="Center" VerticalAlignment="Top" Width="199" Canvas.Top="-2" Visibility="Hidden" Height="502"/>
             <ProgressBar x:Name="DumpImagesProgressBar" HorizontalAlignment="Left" Height="26" VerticalAlignment="Center" Width="127" Canvas.Left="180.337" Canvas.Top="386.875" Background="{x:Null}" BorderBrush="#FF2B2B2B" Foreground="#FFDF7226" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" Visibility="Hidden"/>
             <ProgressBar x:Name="DumpSoundsProgressBar" Height="26" Width="127" Canvas.Left="180.337" Canvas.Top="418.917" Background="{x:Null}" BorderBrush="#FF2B2B2B" Foreground="#FFDF7226" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Center"/>
             <ProgressBar x:Name="DumpMusicProgressBar" Height="26" Width="127" Canvas.Left="180.337" Canvas.Top="450.917" Background="{x:Null}" BorderBrush="#FF2B2B2B" Foreground="#FFDF7226" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <TreeView Name="MFATreeView" HorizontalAlignment="Left" VerticalAlignment="Top" Width="216" Canvas.Left="483" Height="500" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFDF7226" Visibility="Hidden" >
-                <TreeViewItem x:Name="ItemTemplate" Header="Item" Foreground="#FFDF7226" FontFamily="Courier New" FontSize="14" Padding="1,1,0,0">
-                    <TreeViewItem x:Name="ItemTemplate2" Header="Sub Item" Foreground="#FFDF7226" FontFamily="Courier New" FontSize="14" Padding="1,1,0,0"/>
-                </TreeViewItem>
-            </TreeView>
+            <TreeView Name="MFATreeView" HorizontalAlignment="Left" VerticalAlignment="Top" Width="216" Canvas.Left="483" Height="500" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFDF7226" Visibility="Hidden" />
+
         </Canvas>
         <Canvas x:Name="MFADumpCanvas" Margin="0,30,291,0" Visibility="Hidden">
             <Label x:Name="DumpWarningLabel" Content="By using CTFAK you agree that you will only&#xA;use the decompiled MFAs for personal use and&#xA;educational purposes.&#xA;&#xA;You also agree that unless you are the&#xA;original creator or have been given&#xA;permission, you will not recompile any games&#xA;using this tool." HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="#FFDF7226" FontFamily="Courier New" Canvas.Top="362" FontSize="14" Height="145" Width="385"/>
@@ -112,12 +109,12 @@
             </TreeView>
         </Canvas>
         <Canvas x:Name="SoundsCanvas" Margin="0,30,291,0" Visibility="Hidden">
-            <Button x:Name="PlaySoundButton" Content="Play Sound" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="39"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold"/>
+            <Button x:Name="PlaySoundButton" Content="Play Sound" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="39"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden" Click="PlaySound"/>
             <Rectangle x:Name="SoundsSideBorder" HorizontalAlignment="Left" Height="500" VerticalAlignment="Center" Width="3" Fill="#FF0E0E0E" Canvas.Left="488"/>
-            <Button x:Name="StopSoundButton" Content="Stop Sound" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="73" HorizontalAlignment="Center" VerticalAlignment="Top"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold"/>
-            <Label x:Name="SoundInfoText" Content="Name: &#xA;Size: " Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="6" HorizontalAlignment="Center" VerticalAlignment="Top" Width="148" Canvas.Top="-2"/>
+            <Button x:Name="StopSoundButton" Content="Stop Sound" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="73" HorizontalAlignment="Center" VerticalAlignment="Top"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden"/>
+            <Label x:Name="SoundInfoText" Content="Name: &#xA;Size: " Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="6" HorizontalAlignment="Left" VerticalAlignment="Center" Width="478" Canvas.Top="-2"/>
             <Label x:Name="SoundsInfoText" HorizontalAlignment="Left" Content="TO BE FILLED" HorizontalContentAlignment="Center" VerticalAlignment="Center" Foreground="#FFDF7226" Height="121" Width="488" FontSize="16" FontFamily="Courier New" Canvas.Top="379"/>
-            <TreeView Name="SoundsTreeView" HorizontalAlignment="Left" VerticalAlignment="Top" Width="225" Height="500" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFDF7226" Canvas.Left="474" >
+            <TreeView Name="SoundsTreeView" HorizontalAlignment="Left" VerticalAlignment="Top" Width="225" Height="500" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFDF7226" Canvas.Left="474" SelectedItemChanged="SoundTreeViewChanged" >
                 <TreeViewItem x:Name="ItemTemplate5" Header="Item" Foreground="#FFDF7226" FontFamily="Courier New" FontSize="14" Padding="1,1,0,0"/>
             </TreeView>
         </Canvas>
