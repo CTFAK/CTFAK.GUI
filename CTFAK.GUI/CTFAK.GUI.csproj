@@ -11,6 +11,8 @@
   </PropertyGroup>
 
   <ItemGroup>
+	  <!--<None Remove="Assets\Test.png" />
+    <None Remove="Assets\Test2.png" />-->
     <None Remove="CTFAK2.png" />
   </ItemGroup>
 
@@ -24,6 +26,8 @@
   </ItemGroup>
 
   <ItemGroup>
+	  <!--<Resource Include="Assets\Test.png" />
+    <Resource Include="Assets\Test2.png" />-->
     <Resource Include="CTFAK2.png" />
   </ItemGroup>
 
@@ -35,7 +39,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\CTFAK2.0\Core\CTFAK.Core\CTFAK.Core.csproj" />
-    <ProjectReference Include="..\..\CTFAK2.0\Core\CTFAK.Core\CTFAKCore.csproj" />
   </ItemGroup>
 
 </Project>

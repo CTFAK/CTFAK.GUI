@@ -6,6 +6,71 @@
         xmlns:local="clr-namespace:Legacy_CTFAK_UI"
         mc:Ignorable="d"
         Title="CTFAK" Height="550" Width="990" Icon="/CTFAK2.png" ResizeMode="CanMinimize" Closed="WindowClosing">
+    <!-- Custom Scrollbar
+    <Window.Resources>
+        <Style TargetType="ScrollBar">
+            <Setter Property="SnapsToDevicePixels"
+                    Value="True"/>
+            <Setter Property="OverridesDefaultStyle"
+                    Value="True"/>
+
+            <Style.Triggers>
+                <Trigger Property="Orientation"
+                         Value="Vertical">
+                    <Setter Property="Width"
+                            Value="80"/>
+                    <Setter Property="Height"
+                            Value="490"/>
+                    <Setter Property="Margin"
+                            Value="20"/>
+                    <Setter Property="Template"
+                            Value="{DynamicResource VerticalScrollBar}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+        <ControlTemplate x:Key="VerticalScrollBar"
+                         TargetType="{x:Type ScrollBar}">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="80"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="80"/>
+                </Grid.RowDefinitions>
+
+                <Border
+                    Grid.Row="1"
+                    CornerRadius="20"
+                    Margin="10"
+                    Background="#E6C36A"/>
+
+                <Track
+                    Name="PART_Track"
+                    Grid.Row="1"
+                    IsDirectionReversed="True">
+                    <Track.DecreaseRepeatButton>
+                        <RepeatButton
+                            Margin="3,2,3,2"
+                            Command="ScrollBar.PageUpCommand"
+                            Style="{StaticResource ScrollBar_Track}"/>
+                    </Track.DecreaseRepeatButton>
+
+                    <Track.Thumb>
+                        <Thumb Style="{StaticResource ScrollBar_Thumb}"/>
+                    </Track.Thumb>
+
+                    <Track.IncreaseRepeatButton>
+                        <RepeatButton
+                            Margin="3,2,3,2"
+                            Command="ScrollBar.PageDownCommand"
+                            Style="{StaticResource ScrollBar_Track}"/>
+                    </Track.IncreaseRepeatButton>
+                </Track>
+
+            </Grid>
+
+        </ControlTemplate>
+    </Window.Resources> -->
+    <!-- GUI -->
     <Grid x:Name="AppGrid" Background="Black"
         HorizontalAlignment="Stretch"
         VerticalAlignment="Stretch">
@@ -71,16 +136,17 @@
             <Label x:Name="VersionLabel" Content="CTFAK 2.0" HorizontalAlignment="Left" VerticalAlignment="Center" Background="{x:Null}" Foreground="#FFDF7226" FontFamily="Courier New" Canvas.Top="476" Canvas.Left="4"/>
             <Button x:Name="SelectFileButton" Click="SelectFileButton_OnClick" Content="Select File" HorizontalAlignment="Left" VerticalAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="4" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold"/>
             <Label x:Name="MFAInfoTextBlock" HorizontalAlignment="Left" Content="Title: &#10;Copyright: &#10;Product Version: &#10;Build: &#10;Runtime Version: &#10;Number of Images: &#10;Number of Sounds: &#10;Number of Music: &#10;Unique FrameItems: &#10;Frame Count: &#10;Chunks Count: " VerticalAlignment="Center" Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="5" Canvas.Top="40" Width="269" Height="309" Visibility="Hidden"/>
-            <Button x:Name="OpenDumpFolderButton" Content="Open Dump Folder" HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="354" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden"/>
-            <Button x:Name="DumpImagesButton" Content="Dump Images" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="386" HorizontalAlignment="Center" VerticalAlignment="Top" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden" Click="DumpImages"/>
-            <Button x:Name="DumpSoundsButton" Content="Dump Sounds" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="418" HorizontalAlignment="Center" VerticalAlignment="Top" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden" Click="DumpSounds"/>
-            <Button x:Name="DumpMusicButton" Content="Dump Music" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="450" HorizontalAlignment="Center" VerticalAlignment="Top" Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden"/>
+            <Button x:Name="OpenDumpFolderButton" Content="Open Dump Folder" HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="322" Width="174" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden"/>
+            <Button x:Name="DumpSortedImagesButton" Content="Dump Sorted Images" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="354" HorizontalAlignment="Left" VerticalAlignment="Center" Width="174" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Click="DumpSortedImages" Visibility="Hidden"/>
+            <Button x:Name="DumpImagesButton" Content="Dump Images" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="386" Width="174" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Click="DumpImages" HorizontalAlignment="Center" VerticalAlignment="Center" Visibility="Hidden"/>
+            <Button x:Name="DumpSoundsButton" Content="Dump Sounds" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="418" HorizontalAlignment="Center" VerticalAlignment="Center" Width="174" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Click="DumpSounds" Visibility="Hidden"/>
+            <Button x:Name="DumpMusicButton" Content="Dump Music" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="10" Canvas.Top="450" HorizontalAlignment="Center" VerticalAlignment="Center" Width="174" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden"/>
             <Label x:Name="ItemInfoTextBlock" Content="Name: &#xA;Id: &#xA;Flag: &#xA;Size: &#xA;&#xA;Loader Data: &#xA;Number of items: " Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="279" HorizontalAlignment="Center" VerticalAlignment="Top" Width="199" Canvas.Top="-2" Visibility="Hidden" Height="502"/>
-            <ProgressBar x:Name="DumpImagesProgressBar" HorizontalAlignment="Left" Height="26" VerticalAlignment="Center" Width="127" Canvas.Left="180.337" Canvas.Top="386.875" Background="{x:Null}" BorderBrush="#FF2B2B2B" Foreground="#FFDF7226" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" Visibility="Hidden"/>
-            <ProgressBar x:Name="DumpSoundsProgressBar" Height="26" Width="127" Canvas.Left="180.337" Canvas.Top="418.917" Background="{x:Null}" BorderBrush="#FF2B2B2B" Foreground="#FFDF7226" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-            <ProgressBar x:Name="DumpMusicProgressBar" Height="26" Width="127" Canvas.Left="180.337" Canvas.Top="450.917" Background="{x:Null}" BorderBrush="#FF2B2B2B" Foreground="#FFDF7226" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" Visibility="Hidden" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+            <ProgressBar x:Name="DumpSortedImagesProgressBar" HorizontalAlignment="Left" Height="26" VerticalAlignment="Top" Width="127" Canvas.Left="189" Canvas.Top="355" Background="{x:Null}" BorderBrush="#FF2B2B2B" Foreground="#FFDF7226" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" Visibility="Hidden"/>
+            <ProgressBar x:Name="DumpImagesProgressBar" Height="26" Width="127" Canvas.Left="189" Canvas.Top="387" Background="{x:Null}" BorderBrush="#FF2B2B2B" Foreground="#FFDF7226" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" HorizontalAlignment="Left" VerticalAlignment="Center" Visibility="Hidden"/>
+            <ProgressBar x:Name="DumpSoundsProgressBar" Height="26" Width="127" Canvas.Left="189" Canvas.Top="419" Background="{x:Null}" BorderBrush="#FF2B2B2B" Foreground="#FFDF7226" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" HorizontalAlignment="Left" VerticalAlignment="Center" Visibility="Hidden"/>
+            <ProgressBar x:Name="DumpMusicProgressBar" Height="26" Width="127" Canvas.Left="189" Canvas.Top="451" Background="{x:Null}" BorderBrush="#FF2B2B2B" Foreground="#FFDF7226" BorderThickness="1,1,1,1" UseLayoutRounding="False" FlowDirection="LeftToRight" HorizontalAlignment="Left" VerticalAlignment="Center" Visibility="Hidden"/>
             <TreeView Name="MFATreeView" HorizontalAlignment="Left" VerticalAlignment="Top" Width="216" Canvas.Left="483" Height="500" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFDF7226" Visibility="Hidden" />
-
         </Canvas>
         <Canvas x:Name="MFADumpCanvas" Margin="0,30,291,0" Visibility="Hidden">
             <Label x:Name="DumpWarningLabel" Content="By using CTFAK you agree that you will only&#xA;use the decompiled MFAs for personal use and&#xA;educational purposes.&#xA;&#xA;You also agree that unless you are the&#xA;original creator or have been given&#xA;permission, you will not recompile any games&#xA;using this tool." HorizontalAlignment="Center" VerticalAlignment="Top" Background="{x:Null}" Foreground="#FFDF7226" FontFamily="Courier New" Canvas.Top="362" FontSize="14" Height="145" Width="385"/>
@@ -111,7 +177,6 @@
         <Canvas x:Name="SoundsCanvas" Margin="0,30,291,0" Visibility="Hidden">
             <Button x:Name="PlaySoundButton" Content="Play Sound" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="39"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden" Click="PlaySound"/>
             <Rectangle x:Name="SoundsSideBorder" HorizontalAlignment="Left" Height="500" VerticalAlignment="Center" Width="3" Fill="#FF0E0E0E" Canvas.Left="488"/>
-            <Button x:Name="StopSoundButton" Content="Stop Sound" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="73" HorizontalAlignment="Center" VerticalAlignment="Top"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Visibility="Hidden"/>
             <Label x:Name="SoundInfoText" Content="Name: &#xA;Size: " Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="6" HorizontalAlignment="Left" VerticalAlignment="Center" Width="478" Canvas.Top="-2"/>
             <Label x:Name="SoundsInfoText" HorizontalAlignment="Left" Content="TO BE FILLED" HorizontalContentAlignment="Center" VerticalAlignment="Center" Foreground="#FFDF7226" Height="121" Width="488" FontSize="16" FontFamily="Courier New" Canvas.Top="379"/>
             <TreeView Name="SoundsTreeView" HorizontalAlignment="Left" VerticalAlignment="Top" Width="225" Height="500" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFDF7226" Canvas.Left="474" SelectedItemChanged="SoundTreeViewChanged" >
@@ -128,7 +193,7 @@
             </TreeView>
         </Canvas>
         <Canvas x:Name="SettingsCanvas" Margin="0,30,291,0" Visibility="Hidden">
-            <Button x:Name="UpdateButton" Content="Update" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="73"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold"/>
+            <Button x:Name="UpdateButton" Content="Update" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="73"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Click="UpdateSettings"/>
             <Label x:Name="SettingsInfoText" Content="Color: &#xA;&#xA;Lang: " Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="6" HorizontalAlignment="Left" VerticalAlignment="Center" Width="57" Canvas.Top="4"/>
             <TextBox x:Name="ColorTextBox" Canvas.Left="69" TextWrapping="Wrap" Text="" Canvas.Top="8" Width="94" Background="{x:Null}" Foreground="#FFDF7226" FontFamily="Courier New" FontSize="14" BorderBrush="#FF2B2B2B" SelectionBrush="#FF0078D7" HorizontalAlignment="Left" VerticalAlignment="Center" Height="18" Padding="0,0.5,0,0"/>
             <ComboBox Canvas.Left="69" Canvas.Top="39" Width="94" HorizontalAlignment="Center" VerticalAlignment="Top" Height="18" Padding="0,0.5,0,0" Background="#FF393939" Foreground="#000000" BorderBrush="#FF2B2B2B" FontFamily="Courier New" FontSize="14">

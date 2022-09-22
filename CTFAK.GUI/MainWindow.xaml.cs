@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Media;
 using System.Reflection;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -15,8 +12,6 @@ using System.Windows.Threading;
 using CTFAK;
 using CTFAK.CCN;
 using CTFAK.CCN.Chunks.Banks;
-using CTFAK.CCN.Chunks.Frame;
-using CTFAK.CCN.Chunks.Objects;
 using CTFAK.EXE;
 using CTFAK.FileReaders;
 using CTFAK.Tools;
@@ -29,10 +24,12 @@ namespace Legacy_CTFAK_UI
     public partial class MainWindow : Window
     {
         public LoadingWindow loadingWindow;
+        public IFusionTool sortedImageDumper;
         public IFusionTool imageDumper;
         public IFusionTool soundDumper;
         public SoundPlayer CurrentPlayingSound;
-        List<int> loadMax = new List<int>() {0,0,0,0};
+        public static string Color = "#FFDF7226";
+        List<int> loadMax = new() {0,0,0,0};
 
         public void UpdateProgress(double incrementBy)
         {
@@ -43,6 +40,20 @@ namespace Legacy_CTFAK_UI
             }));
         }
 
+        public void UpdateSortedImageProgress(float Progress, float Max)
+        {
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                DumpSortedImagesProgressBar.Maximum = Max;
+                DumpSortedImagesProgressBar.Value = Progress;
+                if (Progress == Max)
+                {
+                    DumpSortedImagesProgressBar.Visibility = Visibility.Hidden;
+                    DumpImagesButton.IsEnabled = true;
+                }
+            }));
+        }
+
         public void UpdateImageProgress(float Progress, float Max)
         {
             Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate()
@@ -50,7 +61,10 @@ namespace Legacy_CTFAK_UI
                 DumpImagesProgressBar.Maximum = Max;
                 DumpImagesProgressBar.Value = Progress;
                 if (Progress == Max)
+                {
                     DumpImagesProgressBar.Visibility = Visibility.Hidden;
+                    DumpSortedImagesButton.IsEnabled = true;
+                }
             }));
         }
 
@@ -126,6 +140,7 @@ namespace Legacy_CTFAK_UI
 
             OpenDumpFolderButton.Visibility = Visibility.Visible;
             MFAInfoTextBlock.Visibility = Visibility.Visible;
+            DumpSortedImagesButton.Visibility = Visibility.Visible;
             DumpImagesButton.Visibility = Visibility.Visible;
             DumpSoundsButton.Visibility = Visibility.Visible;
             DumpMusicButton.Visibility = Visibility.Visible;
@@ -149,19 +164,21 @@ namespace Legacy_CTFAK_UI
             {
                 TreeViewItem frameItem = new TreeViewItem();
                 frameItem.Header = frame.name;
-                frameItem.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFDF7226"));
-                frameItem.FontFamily = new System.Windows.Media.FontFamily("Courier New");
+                frameItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                frameItem.FontFamily = new FontFamily("Courier New");
                 frameItem.FontSize = 14;
                 frameItem.Padding = new Thickness(1, 1, 0, 0);
+                frameItem.Tag = "Frame";
                 MFATreeView.Items.Add(frameItem);
                 foreach (var item in frame.objects)
                 {
                     TreeViewItem objectItem = new TreeViewItem();
                     objectItem.Header = game.frameitems[item.objectInfo].name;
-                    objectItem.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFDF7226"));
-                    objectItem.FontFamily = new System.Windows.Media.FontFamily("Courier New");
+                    objectItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                    objectItem.FontFamily = new FontFamily("Courier New");
                     objectItem.FontSize = 14;
                     objectItem.Padding = new Thickness(1, 1, 0, 0);
+                    objectItem.Tag = "Object";
                     frameItem.Items.Add(objectItem);
                 }
 
@@ -175,8 +192,8 @@ namespace Legacy_CTFAK_UI
                 {
                     TreeViewItem soundItem = new TreeViewItem();
                     soundItem.Header = sound.Name;
-                    soundItem.Foreground = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFDF7226"));
-                    soundItem.FontFamily = new System.Windows.Media.FontFamily("Courier New");
+                    soundItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                    soundItem.FontFamily = new FontFamily("Courier New");
                     soundItem.FontSize = 14;
                     soundItem.Padding = new Thickness(1, 1, 0, 0);
                     soundItem.Tag = soundCount;
@@ -241,6 +258,7 @@ namespace Legacy_CTFAK_UI
                     availableTools.Add((IFusionTool)Activator.CreateInstance(pluginType));
             }
             imageDumper = availableTools[1];
+            DumpSortedImagesButton.IsEnabled = false;
             DumpImagesProgressBar.Visibility = Visibility.Visible;
             Thread dumpImagesThread = new Thread(DumpImagesThread);
             dumpImagesThread.Name = "Dump Images";
@@ -267,6 +285,7 @@ namespace Legacy_CTFAK_UI
                 }
             }
             UpdateImageProgress(currentReader.getGameData().Images.Items.Count, currentReader.getGameData().Images.Items.Count);
+            DumpSortedImagesButton.IsEnabled = true;
             imageDumper = null;
         }
 
@@ -311,6 +330,7 @@ namespace Legacy_CTFAK_UI
 
         private void SoundTreeViewChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
+            if (SoundsTreeView.Items.Count == 0) return;
             TreeViewItem SelectedItem = (TreeViewItem)SoundsTreeView.SelectedItem;
             PlaySoundButton.Visibility = Visibility.Visible;
             PlaySoundButton.Content = "Play Sound";
@@ -334,6 +354,135 @@ namespace Legacy_CTFAK_UI
                 CurrentPlayingSound.Stop();
                 CurrentPlayingSound = null;
             }
+        }
+
+        private void UpdateSettings(object sender, RoutedEventArgs e)
+        {
+            if (Color != "#" + ColorTextBox.Text)
+            {
+                Color = "#" + ColorTextBox.Text;
+                //Console
+                ConsoleTextBox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                ConsoleLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                //Main
+                VersionLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                SelectFileButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                SelectFileButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                MFAInfoTextBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                OpenDumpFolderButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                OpenDumpFolderButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpSortedImagesButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpSortedImagesButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpImagesButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpImagesButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpSoundsButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpSoundsButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpMusicButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpMusicButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                ItemInfoTextBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpSortedImagesProgressBar.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpImagesProgressBar.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpSoundsProgressBar.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpMusicProgressBar.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                foreach (TreeViewItem item in MFATreeView.Items)
+                {
+                    item.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                    if (item.Tag == "Frame")
+                    {
+                        foreach (TreeViewItem obj in item.Items)
+                            obj.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                    }
+                }
+                //MFA Dump
+                DumpWarningLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpMFAButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpMFAButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                ExtensionsCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                IconsCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                //Pack Dump
+                DumpPackedButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpPackedButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpAllPackedButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpAllPackedButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                PackedInfoText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                PackDataInfoText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                foreach (TreeViewItem item in PackedTreeView.Items)
+                    item.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                //Objects
+                DumpSelectedButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                DumpSelectedButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                PlayAnimationButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                PlayAnimationButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                ObjectInfoText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                foreach (TreeViewItem item in ObjectsTreeView.Items)
+                    item.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                //Sounds
+                PlaySoundButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                PlaySoundButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                SoundInfoText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                SoundsInfoText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                foreach (TreeViewItem item in SoundsTreeView.Items)
+                    item.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                //Plugins
+                ActivateButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                ActivateButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                PluginInfoText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                PluginsInfoText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                foreach (TreeViewItem item in PluginsTreeView.Items)
+                    item.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                //Settings
+                UpdateButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                UpdateButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                SettingsInfoText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                ColorTextBox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                //Loading Window
+                if (loadingWindow != null)
+                {
+                    loadingWindow.Loader.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                    loadingWindow.LoadingLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                    loadingWindow.LoadingProgressBarOne.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                }
+            }
+        }
+
+        private void DumpSortedImages(object sender, RoutedEventArgs e)
+        {
+            List<IFusionTool> availableTools = new List<IFusionTool>();
+            var newAsm = Assembly.LoadFrom("Plugins\\Dumper.dll");
+            foreach (var pluginType in newAsm.GetTypes())
+            {
+                if (pluginType.GetInterface(typeof(IFusionTool).FullName) != null)
+                    availableTools.Add((IFusionTool)Activator.CreateInstance(pluginType));
+            }
+            sortedImageDumper = availableTools[3];
+            DumpImagesButton.IsEnabled = false;
+            DumpSortedImagesProgressBar.Visibility = Visibility.Visible;
+            Thread dumpSortedImagesThread = new Thread(DumpSortedImagesThread);
+            dumpSortedImagesThread.Name = "Dump Sorted Images";
+            dumpSortedImagesThread.Start();
+            Thread dumpSortedImagesProgThread = new Thread(DumpSortedImagesProgThread);
+            dumpSortedImagesProgThread.Name = "Dump Sorted Images Progress";
+            dumpSortedImagesProgThread.Start();
+        }
+
+        void DumpSortedImagesThread()
+        {
+            sortedImageDumper.Execute(currentReader);
+        }
+
+        void DumpSortedImagesProgThread()
+        {
+            while (sortedImageDumper != null)
+            {
+                if (sortedImageDumper.Progress.Length == 2)
+                {
+                    UpdateSortedImageProgress(sortedImageDumper.Progress[0], sortedImageDumper.Progress[1]);
+                    if (sortedImageDumper.Progress[0] == sortedImageDumper.Progress[1])
+                        break;
+                }
+            }
+            UpdateSortedImageProgress(currentReader.getGameData().Images.Items.Count, currentReader.getGameData().Images.Items.Count);
+            imageDumper = null;
         }
     }
 }
