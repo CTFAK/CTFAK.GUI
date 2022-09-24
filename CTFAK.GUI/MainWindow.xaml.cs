@@ -1,42 +1,52 @@
-﻿using System;
+﻿using CTFAK;
+using CTFAK.CCN;
+using CTFAK.CCN.Chunks.Banks;
+using CTFAK.CCN.Chunks.Objects;
+using CTFAK.EXE;
+using CTFAK.FileReaders;
+using CTFAK.Tools;
+using CTFAK.Utils;
+using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Media;
 using System.Reflection;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
-using CTFAK;
-using CTFAK.CCN;
-using CTFAK.CCN.Chunks.Banks;
-using CTFAK.EXE;
-using CTFAK.FileReaders;
-using CTFAK.Tools;
-using CTFAK.Utils;
-using Microsoft.Win32;
 using Action = System.Action;
 
 namespace Legacy_CTFAK_UI
 {
     public partial class MainWindow : Window
     {
-        public LoadingWindow loadingWindow;
         public IFusionTool sortedImageDumper;
         public IFusionTool imageDumper;
         public IFusionTool soundDumper;
+        public IFusionTool Decompiler;
+        public int curAnimFrame;
         public SoundPlayer CurrentPlayingSound;
         public static string Color = "#FFDF7226";
-        List<int> loadMax = new() {0,0,0,0};
 
-        public void UpdateProgress(double incrementBy)
+        public void UpdateProgress(double incrementBy, double maximum, string loadType)
         {
-            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate() 
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
             {
-                loadingWindow.LoadingProgressBarOne.Maximum = loadMax[0] + loadMax[1] + loadMax[2] + loadMax[3];
-                loadingWindow.LoadingProgressBarOne.Value+=incrementBy;
+                if (LoadingProgressBarOne.Maximum != maximum)
+                    LoadingProgressBarOne.Value = 0;
+                LoadingProgressBarOne.Maximum = maximum;
+                LoadingProgressBarOne.Value += incrementBy;
+                int percentage = (int)(LoadingProgressBarOne.Value / LoadingProgressBarOne.Maximum * 100);
+                if (percentage < 0 || percentage > 100)
+                    percentage = 100;
+                LoadingDesc.Content = $"Loading {loadType}. {percentage}%";
             }));
         }
 
@@ -50,6 +60,7 @@ namespace Legacy_CTFAK_UI
                 {
                     DumpSortedImagesProgressBar.Visibility = Visibility.Hidden;
                     DumpImagesButton.IsEnabled = true;
+                    DumpSortedImagesButton.IsEnabled = true;
                 }
             }));
         }
@@ -63,6 +74,7 @@ namespace Legacy_CTFAK_UI
                 if (Progress == Max)
                 {
                     DumpImagesProgressBar.Visibility = Visibility.Hidden;
+                    DumpImagesButton.IsEnabled = true;
                     DumpSortedImagesButton.IsEnabled = true;
                 }
             }));
@@ -75,7 +87,10 @@ namespace Legacy_CTFAK_UI
                 DumpSoundsProgressBar.Maximum = Max;
                 DumpSoundsProgressBar.Value = Progress;
                 if (Progress == Max)
+                {
                     DumpSoundsProgressBar.Visibility = Visibility.Hidden;
+                    DumpSoundsButton.IsEnabled = true;
+                }
             }));
         }
 
@@ -85,28 +100,47 @@ namespace Legacy_CTFAK_UI
             Core.Init();
             ImageBank.OnImageLoaded += (current, all) =>
             {
-                loadMax[0] = all;
-                UpdateProgress(1);
+                UpdateProgress(1, all, "images");
             };
             GameData.OnChunkLoaded += (current, all) =>
             {
-                loadMax[1] = all;
-                UpdateProgress(1);
+                UpdateProgress(1, all, "chunks");
             };
             GameData.OnFrameLoaded += (current, all) =>
             {
-                loadMax[2] = all;
-                UpdateProgress(1);
+                UpdateProgress(1, all, "frames");
             };
             SoundBank.OnSoundLoaded += (current, all) =>
             {
-                loadMax[3] = all;
-                UpdateProgress(1);
-            };/*
-            Logger.onLog += (log) =>
+                UpdateProgress(1, all, "sounds");
+            };
+            /*Logger.onLog += (log) =>
             {
                 ConsoleTextBox.AppendText(log);
             };*/
+
+            /*List<LoadPlugin> availableTools = new List<LoadPlugin>();
+            int toolID = 0;
+            foreach (var item in Directory.GetFiles("Plugins", "*.dll"))
+            {
+                var newAsm = Assembly.LoadFrom(Path.GetFullPath(item));
+                foreach (var pluginType in newAsm.GetTypes())
+                {
+                    if (pluginType.GetInterface(typeof(LoadPlugin).FullName) != null)
+                    {
+                        availableTools.Add((LoadPlugin)Activator.CreateInstance(pluginType));
+                        TreeViewItem TreeItem = new TreeViewItem();
+                        TreeItem.Header = pluginType.GetInterface(typeof(LoadPlugin).FullName);
+                        TreeItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                        TreeItem.FontFamily = new FontFamily("Courier New");
+                        TreeItem.FontSize = 14;
+                        TreeItem.Padding = new Thickness(1, 1, 0, 0);
+                        TreeItem.Tag = toolID;
+                        PluginsTreeView.Items.Add(TreeItem);
+                        toolID++;
+                    }
+                }
+            }*/
 
             //Sets the scaling properly so everything looks right.
             Width += 16;
@@ -159,29 +193,48 @@ namespace Legacy_CTFAK_UI
                 $"Unique FrameItems: {game?.frameitems?.Count ?? 0}\n" +
                 $"Frame Count: {game.frames.Count}\n";
 
+            int frameCount = 0;
+            ObjectsTreeView.Items.Clear();
             MFATreeView.Items.Clear();
             foreach (var frame in game.frames)
             {
+                if (frame.name == null || frame.name.Length == 0) continue;
                 TreeViewItem frameItem = new TreeViewItem();
+                TreeViewItem frameItem2 = new TreeViewItem();
                 frameItem.Header = frame.name;
+                frameItem2.Header = frame.name;
                 frameItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                frameItem2.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 frameItem.FontFamily = new FontFamily("Courier New");
+                frameItem2.FontFamily = new FontFamily("Courier New");
                 frameItem.FontSize = 14;
+                frameItem2.FontSize = 14;
                 frameItem.Padding = new Thickness(1, 1, 0, 0);
-                frameItem.Tag = "Frame";
+                frameItem2.Padding = new Thickness(1, 1, 0, 0);
+                frameItem.Tag = $"{frameCount}Frame";
+                frameItem2.Tag = $"{frameCount}Frame";
                 MFATreeView.Items.Add(frameItem);
+                ObjectsTreeView.Items.Add(frameItem2);
+                frameCount++;
                 foreach (var item in frame.objects)
                 {
                     TreeViewItem objectItem = new TreeViewItem();
+                    TreeViewItem objectItem2 = new TreeViewItem();
                     objectItem.Header = game.frameitems[item.objectInfo].name;
+                    objectItem2.Header = game.frameitems[item.objectInfo].name;
                     objectItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                    objectItem2.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                     objectItem.FontFamily = new FontFamily("Courier New");
+                    objectItem2.FontFamily = new FontFamily("Courier New");
                     objectItem.FontSize = 14;
+                    objectItem2.FontSize = 14;
                     objectItem.Padding = new Thickness(1, 1, 0, 0);
-                    objectItem.Tag = "Object";
+                    objectItem2.Padding = new Thickness(1, 1, 0, 0);
+                    objectItem.Tag = $"{item.objectInfo}Object";
+                    objectItem2.Tag = $"{item.objectInfo}Object";
                     frameItem.Items.Add(objectItem);
+                    frameItem2.Items.Add(objectItem2);
                 }
-
             }
 
             SoundsTreeView.Items.Clear();
@@ -203,7 +256,9 @@ namespace Legacy_CTFAK_UI
             }
             catch { }
 
-            loadingWindow.Close();
+            LoadingGrid.Visibility = Visibility.Hidden;
+            LoadingProgressBarOne.Maximum = 0.1;
+            LoadingProgressBarOne.Value = 0;
             Directory.CreateDirectory("Dumps");
         }
 
@@ -229,9 +284,7 @@ namespace Legacy_CTFAK_UI
                 else
                     Core.path = fileSelector.FileName;
 
-                loadingWindow = new LoadingWindow();
-                loadingWindow.Owner = this;
-                loadingWindow.Show();
+                LoadingGrid.Visibility = Visibility.Visible;
                 var backgroundWorker = new BackgroundWorker();
                 backgroundWorker.DoWork += (o,e) =>
                 {
@@ -258,6 +311,7 @@ namespace Legacy_CTFAK_UI
                     availableTools.Add((IFusionTool)Activator.CreateInstance(pluginType));
             }
             imageDumper = availableTools[1];
+            DumpImagesButton.IsEnabled = false;
             DumpSortedImagesButton.IsEnabled = false;
             DumpImagesProgressBar.Visibility = Visibility.Visible;
             Thread dumpImagesThread = new Thread(DumpImagesThread);
@@ -285,7 +339,6 @@ namespace Legacy_CTFAK_UI
                 }
             }
             UpdateImageProgress(currentReader.getGameData().Images.Items.Count, currentReader.getGameData().Images.Items.Count);
-            DumpSortedImagesButton.IsEnabled = true;
             imageDumper = null;
         }
 
@@ -299,6 +352,7 @@ namespace Legacy_CTFAK_UI
                     availableTools.Add((IFusionTool)Activator.CreateInstance(pluginType));
             }
             soundDumper = availableTools[2];
+            DumpSoundsButton.IsEnabled = false;
             DumpSoundsProgressBar.Visibility = Visibility.Visible;
             Thread dumpSoundsThread = new Thread(DumpSoundsThread);
             dumpSoundsThread.Name = "Dump Sounds";
@@ -358,7 +412,7 @@ namespace Legacy_CTFAK_UI
 
         private void UpdateSettings(object sender, RoutedEventArgs e)
         {
-            if (Color != "#" + ColorTextBox.Text)
+            if (Color != "#" + ColorTextBox.Text && ColorTextBox.Text.Length == 6)
             {
                 Color = "#" + ColorTextBox.Text;
                 //Console
@@ -387,7 +441,7 @@ namespace Legacy_CTFAK_UI
                 foreach (TreeViewItem item in MFATreeView.Items)
                 {
                     item.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                    if (item.Tag == "Frame")
+                    if (item.Tag.ToString().Contains("Frame"))
                     {
                         foreach (TreeViewItem obj in item.Items)
                             obj.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
@@ -399,6 +453,9 @@ namespace Legacy_CTFAK_UI
                 DumpMFAButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 ExtensionsCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 IconsCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                ImagesCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                EventsCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                TraceCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 //Pack Dump
                 DumpPackedButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 DumpPackedButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
@@ -413,9 +470,18 @@ namespace Legacy_CTFAK_UI
                 DumpSelectedButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 PlayAnimationButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 PlayAnimationButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                AnimationLeft.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                AnimationLeft.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                AnimationRight.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                AnimationRight.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                AnimationCurrentFrame.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 ObjectInfoText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 foreach (TreeViewItem item in ObjectsTreeView.Items)
+                {
                     item.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                    foreach (TreeViewItem obj in item.Items)
+                        obj.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                }
                 //Sounds
                 PlaySoundButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 PlaySoundButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
@@ -436,12 +502,10 @@ namespace Legacy_CTFAK_UI
                 SettingsInfoText.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 ColorTextBox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 //Loading Window
-                if (loadingWindow != null)
-                {
-                    loadingWindow.Loader.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                    loadingWindow.LoadingLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                    loadingWindow.LoadingProgressBarOne.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                }
+                LoadingGrid.Background = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                LoadingLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                LoadingProgressBarOne.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                LoadingDesc.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
             }
         }
 
@@ -456,6 +520,7 @@ namespace Legacy_CTFAK_UI
             }
             sortedImageDumper = availableTools[3];
             DumpImagesButton.IsEnabled = false;
+            DumpSortedImagesButton.IsEnabled = false;
             DumpSortedImagesProgressBar.Visibility = Visibility.Visible;
             Thread dumpSortedImagesThread = new Thread(DumpSortedImagesThread);
             dumpSortedImagesThread.Name = "Dump Sorted Images";
@@ -483,6 +548,302 @@ namespace Legacy_CTFAK_UI
             }
             UpdateSortedImageProgress(currentReader.getGameData().Images.Items.Count, currentReader.getGameData().Images.Items.Count);
             imageDumper = null;
+        }
+
+        private void ParameterToggle(object sender, RoutedEventArgs e)
+        {
+            CheckBox cb = sender as CheckBox;
+            if ((bool)cb.IsChecked)
+            {
+                Core.parameters = Core.parameters + cb.Tag.ToString();
+            }
+            else
+            {
+                Core.parameters.Replace(cb.Tag.ToString(), "");
+            }
+            ConsoleTextBox.Text = Core.parameters;
+        }
+
+        private void DumpMFAButton_Click(object sender, RoutedEventArgs e)
+        {
+            List<IFusionTool> availableTools = new List<IFusionTool>();
+            var newAsm = Assembly.LoadFrom("Plugins\\CTFAK.Decompiler.dll");
+            foreach (var pluginType in newAsm.GetTypes())
+            {
+                if (pluginType.GetInterface(typeof(IFusionTool).FullName) != null)
+                    availableTools.Add((IFusionTool)Activator.CreateInstance(pluginType));
+            }
+            Decompiler = availableTools[0];
+            DumpMFAButton.IsEnabled = false;
+            Thread decompilerThread = new Thread(DecompilerThread);
+            decompilerThread.Name = "Decompiler";
+            decompilerThread.Start();
+        }
+
+        void DecompilerThread()
+        {
+            Decompiler.Execute(currentReader);
+            DecompilerFinished();
+        }
+
+        public void DecompilerFinished()
+        {
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                DumpMFAButton.IsEnabled = true;
+            }));
+        }
+
+        private void SelectObject(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            if (ObjectsTreeView.Items.Count == 0) return;
+            TreeViewItem SelectedItem = (TreeViewItem)ObjectsTreeView.SelectedItem;
+            if (SelectedItem.Tag.ToString().Contains("Object"))
+            {
+                AnimationLeft.Visibility = Visibility.Visible;
+                AnimationRight.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                ObjectPicture.Source = null;
+                try
+                {
+                    ObjectInfoText.Content =
+                        $"Name: {SelectedItem.Header}\n" +
+                        $"Type: Frame\n" +
+                        $"Objects: {SelectedItem.Items.Count}";
+                }
+                catch (Exception exc) { Logger.Log(exc); }
+                return;
+            }
+            var objectInfo = currentReader.getGameData().frameitems[int.Parse(SelectedItem.Tag.ToString().Replace("Object", ""))];
+
+            if (objectInfo.properties is Backdrop bd)
+            {
+                if (bd.Image == null) return;
+                System.Drawing.Bitmap bmp = null;
+                try
+                {
+                    bmp = currentReader.getGameData().Images.Items[bd.Image].bitmap;
+                    var handle = bmp.GetHbitmap();
+                    ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                    AnimationCurrentFrame.Content = "";
+                }
+                catch (Exception exc) { Logger.Log(exc); }
+                try
+                {
+                    ObjectInfoText.Content =
+                        $"Name: {objectInfo.name}\n" +
+                        $"Type: Backdrop\n" +
+                        $"Size: {bmp.Width}x{bmp.Height}";
+                }
+                catch (Exception exc) { Logger.Log(exc); }
+            }
+
+            if (objectInfo.properties is Quickbackdrop qbd)
+            {
+                if (qbd.Image == null) return;
+                System.Drawing.Bitmap bmp = null;
+                try
+                {
+                    bmp = currentReader.getGameData().Images.Items[qbd.Image].bitmap;
+                    var handle = bmp.GetHbitmap();
+                    ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                    AnimationCurrentFrame.Content = "";
+                }
+                catch (Exception exc) { Logger.Log(exc); }
+                try
+                {
+                    ObjectInfoText.Content =
+                        $"Name: {objectInfo.name}\n" +
+                        $"Type: Quick Backdrop\n" +
+                        $"Size: {bmp.Width}x{bmp.Height}";
+                }
+                catch (Exception exc) { Logger.Log(exc); }
+            }
+
+            if (objectInfo.properties is ObjectCommon common)
+            {
+                if (common.Identifier == "SPRI" || common.Identifier == "SP")
+                {
+                    if (common.Animations.AnimationDict == null) return;
+                    if (common.Animations.AnimationDict[0].DirectionDict == null) return;
+                    if (common.Animations.AnimationDict[0].DirectionDict[0].Frames == null) return;
+                    var frm = common.Animations.AnimationDict[0].DirectionDict[0].Frames;
+                    System.Drawing.Bitmap bmp = null;
+                    try
+                    {
+                        bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
+                        var handle = bmp.GetHbitmap();
+                        ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                        RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                        curAnimFrame = 0;
+                        AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count}";
+                    }
+                    catch (Exception exc) { Logger.Log(exc); }
+                    try
+                    {
+                        ObjectInfoText.Content =
+                            $"Name: {objectInfo.name}\n" +
+                            $"Type: Active\n" +
+                            $"Size: {bmp.Width}x{bmp.Height}\n" +
+                            $"Animations: {common.Animations.AnimationDict.Count}";
+                    }
+                    catch (Exception exc) { Logger.Log(exc); }
+                }
+                else if (common.Identifier == "CNTR" || common.Identifier == "CN")
+                {
+                    var counter = common.Counters;
+                    if (counter == null) return;
+                    if (!(counter.DisplayType == 1 || counter.DisplayType == 4 || counter.DisplayType == 50)) return;
+                    if (counter.Frames == null) return;
+                    var frm = counter.Frames;
+                    System.Drawing.Bitmap bmp = null;
+                    try
+                    {
+                        bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
+                        var handle = bmp.GetHbitmap();
+                        ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                        RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                        curAnimFrame = 0;
+                        AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{counter.Frames.Count}";
+                    }
+                    catch (Exception exc) { Logger.Log(exc); }
+                    try
+                    {
+                        ObjectInfoText.Content =
+                            $"Name: {objectInfo.name}\n" +
+                            $"Type: Counter\n" +
+                            $"Size: {bmp.Width}x{bmp.Height}";
+                    }
+                    catch (Exception exc) { Logger.Log(exc); }
+                }
+                else if (common.Identifier == "TEXT" || common.Identifier == "TE")
+                {
+                    try
+                    {
+                        ObjectInfoText.Content =
+                            $"Name: {objectInfo.name}\n" +
+                            $"Type: String\n" +
+                            $"Paragraphs: {common.Text.Items.Count}";
+                    }
+                    catch (Exception exc) { Logger.Log(exc); }
+                }
+                else
+                {
+                    ObjectPicture.Source = null;
+                    AnimationCurrentFrame.Content = "";
+                }
+            }
+            //MemoryStream bytes = new MemoryStream(currentReader.getGameData().frameitems[int.Parse(SelectedItem.Tag.ToString())]));
+            
+        }
+
+        private void AnimationLeft_Click(object sender, RoutedEventArgs e)
+        {
+            if (ObjectsTreeView.Items.Count == 0) return;
+            if (ObjectsTreeView.SelectedItem != null)
+            {
+                TreeViewItem SelectedItem = (TreeViewItem)ObjectsTreeView.SelectedItem;
+                if (currentReader.getGameData().frameitems[int.Parse(SelectedItem.Tag.ToString().Replace("Object", ""))].properties is ObjectCommon common)
+                {
+                    if (common.Identifier == "SPRI" || common.Identifier == "SP")
+                    {
+                        if (common.Animations?.AnimationDict[0] == null) return;
+                        if (common.Animations?.AnimationDict[0].DirectionDict[0] == null) return;
+                        if (common.Animations?.AnimationDict[0].DirectionDict[0].Frames[0] == null) return;
+                        curAnimFrame--;
+                        if (curAnimFrame < 0) curAnimFrame = common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count - 1;
+                        var frm = common.Animations.AnimationDict[0].DirectionDict[0].Frames[curAnimFrame];
+                        try
+                        {
+                            var handle = currentReader.getGameData().Images.Items[frm].bitmap.GetHbitmap();
+                            ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                            RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                            AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count}";
+                        }
+                        catch (Exception exc) { Logger.Log(exc); }
+                    }
+                    else if (common.Identifier == "CNTR" || common.Identifier == "CN")
+                    {
+                        var counter = common.Counters;
+                        if (counter == null) return;
+                        if (!(counter.DisplayType == 1 || counter.DisplayType == 4 || counter.DisplayType == 50)) return;
+                        if (counter.Frames == null) return;
+                        curAnimFrame--;
+                        if (curAnimFrame < 0) curAnimFrame = counter.Frames.Count - 1;
+                        var frm = counter.Frames;
+                        try
+                        {
+                            var handle = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap.GetHbitmap();
+                            ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                            RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                            AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{counter.Frames.Count}";
+                        }
+                        catch (Exception exc) { Logger.Log(exc); }
+                    }
+                }
+            }
+        }
+
+        private void AnimationRight_Click(object sender, RoutedEventArgs e)
+        {
+            if (ObjectsTreeView.Items.Count == 0) return;
+            if (ObjectsTreeView.SelectedItem != null)
+            {
+                TreeViewItem SelectedItem = (TreeViewItem)ObjectsTreeView.SelectedItem;
+                if (currentReader.getGameData().frameitems[int.Parse(SelectedItem.Tag.ToString().Replace("Object", ""))].properties is ObjectCommon common)
+                {
+                    if (common.Identifier == "SPRI" || common.Identifier == "SP")
+                    {
+                        if (common.Animations?.AnimationDict[0] == null) return;
+                        if (common.Animations?.AnimationDict[0].DirectionDict[0] == null) return;
+                        if (common.Animations?.AnimationDict[0].DirectionDict[0].Frames[0] == null) return;
+                        curAnimFrame++;
+                        if (curAnimFrame > common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count - 1) curAnimFrame = 0;
+                        var frm = common.Animations.AnimationDict[0].DirectionDict[0].Frames[curAnimFrame];
+                        try
+                        {
+                            var handle = currentReader.getGameData().Images.Items[frm].bitmap.GetHbitmap();
+                            ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                            RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                            AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count}";
+                        }
+                        catch (Exception exc) { Logger.Log(exc); }
+                    }
+                    else if (common.Identifier == "CNTR" || common.Identifier == "CN")
+                    {
+                        var counter = common.Counters;
+                        if (counter == null) return;
+                        if (!(counter.DisplayType == 1 || counter.DisplayType == 4 || counter.DisplayType == 50)) return;
+                        if (counter.Frames == null) return;
+                        curAnimFrame++;
+                        if (curAnimFrame > counter.Frames.Count - 1) curAnimFrame = 0;
+                        var frm = counter.Frames;
+                        try
+                        {
+                            var handle = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap.GetHbitmap();
+                            ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                            RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                            AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{counter.Frames.Count}";
+                        }
+                        catch (Exception exc) { Logger.Log(exc); }
+                    }
+                }
+            }
+        }
+
+        private void OpenDumpFolder(object sender, RoutedEventArgs e)
+        {
+            Directory.CreateDirectory("Dumps\\" + currentReader.getGameData().name);
+            Process.Start("explorer.exe", Directory.GetCurrentDirectory() + "\\Dumps\\" + currentReader.getGameData().name + "\\");
+        }
+
+        private void ActivateButton_Click(object sender, RoutedEventArgs e)
+        {
+
         }
     }
 }
