@@ -27,6 +27,7 @@ namespace Legacy_CTFAK_UI
 {
     public partial class MainWindow : Window
     {
+        public static IFileReader currentReader;
         public IFusionTool sortedImageDumper;
         public IFusionTool imageDumper;
         public IFusionTool soundDumper;
@@ -178,24 +179,31 @@ namespace Legacy_CTFAK_UI
             DumpImagesButton.Visibility = Visibility.Visible;
             DumpSoundsButton.Visibility = Visibility.Visible;
             DumpMusicButton.Visibility = Visibility.Visible;
-            ItemInfoTextBlock.Visibility = Visibility.Visible;
             MFATreeView.Visibility = Visibility.Visible;
             var game = currentReader.getGameData();
             MFAInfoTextBlock.Content =
                 $"Title: {game.name ?? ""}\n" +
                 $"Copyright: {game.copyright ?? ""}\n" +
-                $"Product Version: to be filled\n" +
+                //$"Product Version: to be filled\n" +
                 $"Build: {Settings.Build}\n" +
-                $"Runtime Version: to be filled\n" +
+                //$"Runtime Version: to be filled\n
+                "\n" +
+                $"Number of Frames: {game.frames.Count}\n" +
+                $"Number of Objects: {game?.frameitems?.Count ?? 0}\n" +
                 $"Number of Images: {game?.Images?.Items.Count ?? 0}\n" +
                 $"Number of Sounds: {game?.Sounds?.Items.Count ?? 0}\n" +
-                $"Number of Music: {game?.Music?.Items.Count ?? 0}\n" +
-                $"Unique FrameItems: {game?.frameitems?.Count ?? 0}\n" +
-                $"Frame Count: {game.frames.Count}\n";
+                $"Number of Music: {game?.Music?.Items.Count ?? 0}\n";
 
             int frameCount = 0;
             ObjectsTreeView.Items.Clear();
             MFATreeView.Items.Clear();
+            TreeViewItem FrameParent = new TreeViewItem();
+            FrameParent.Header = $"Frames";
+            FrameParent.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+            FrameParent.FontFamily = new FontFamily("Courier New");
+            FrameParent.FontSize = 14;
+            FrameParent.Padding = new Thickness(1, 1, 0, 0);
+            MFATreeView.Items.Add(FrameParent);
             foreach (var frame in game.frames)
             {
                 if (frame.name == null || frame.name.Length == 0) continue;
@@ -213,7 +221,7 @@ namespace Legacy_CTFAK_UI
                 frameItem2.Padding = new Thickness(1, 1, 0, 0);
                 frameItem.Tag = $"{frameCount}Frame";
                 frameItem2.Tag = $"{frameCount}Frame";
-                MFATreeView.Items.Add(frameItem);
+                FrameParent.Items.Add(frameItem);
                 ObjectsTreeView.Items.Add(frameItem2);
                 frameCount++;
                 foreach (var item in frame.objects)
@@ -234,6 +242,30 @@ namespace Legacy_CTFAK_UI
                     objectItem2.Tag = $"{item.objectInfo}Object";
                     frameItem.Items.Add(objectItem);
                     frameItem2.Items.Add(objectItem2);
+                    if (game.frameitems[item.objectInfo].properties is ObjectCommon common)
+                    {
+                        if (common.Identifier != "SPRI" && common.Identifier != "SP" && common.Parent.ObjectType != 2) continue;
+                        int i = 0;
+                        foreach (var anim in common.Animations.AnimationDict)
+                        {
+                            if (common.Animations.AnimationDict[i].DirectionDict == null)
+                            {
+                                i++;
+                                continue;
+                            }
+                            TreeViewItem animItem = new TreeViewItem();
+                            animItem.Header = $"Animation {i}";
+                            animItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                            animItem.FontFamily = new FontFamily("Courier New");
+                            animItem.FontSize = 14;
+                            animItem.Padding = new Thickness(1, 1, 0, 0);
+                            animItem.Tag = $"{anim.Key}Animation";
+                            objectItem2.Items.Add(animItem);
+                            i++;
+                        }
+                        if (objectItem2.Items.Count <= 1) objectItem2.Items.Clear();
+                    }
+                    
                 }
             }
 
@@ -262,7 +294,6 @@ namespace Legacy_CTFAK_UI
             Directory.CreateDirectory("Dumps");
         }
 
-        public static IFileReader currentReader;
         private void SelectFileButton_OnClick(object sender, RoutedEventArgs e)
         {
             var fileSelector = new OpenFileDialog();
@@ -441,9 +472,10 @@ namespace Legacy_CTFAK_UI
                 foreach (TreeViewItem item in MFATreeView.Items)
                 {
                     item.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                    if (item.Tag.ToString().Contains("Frame"))
+                    foreach (TreeViewItem subitem in item.Items)
                     {
-                        foreach (TreeViewItem obj in item.Items)
+                        subitem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                        foreach (TreeViewItem obj in subitem.Items)
                             obj.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                     }
                 }
@@ -480,7 +512,11 @@ namespace Legacy_CTFAK_UI
                 {
                     item.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                     foreach (TreeViewItem obj in item.Items)
+                    {
                         obj.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                        foreach (TreeViewItem obj2 in obj.Items)
+                            obj2.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                    }
                 }
                 //Sounds
                 PlaySoundButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
@@ -603,8 +639,43 @@ namespace Legacy_CTFAK_UI
                 AnimationLeft.Visibility = Visibility.Visible;
                 AnimationRight.Visibility = Visibility.Visible;
             }
+            else if (SelectedItem.Tag.ToString().Contains("Animation"))
+            {
+                AnimationLeft.Visibility = Visibility.Visible;
+                AnimationRight.Visibility = Visibility.Visible;
+                TreeViewItem ItemParent = (TreeViewItem)SelectedItem.Parent;
+                var animInfo = currentReader.getGameData().frameitems[int.Parse(ItemParent.Tag.ToString().Replace("Object", ""))];
+                if (animInfo.properties is ObjectCommon anim)
+                {
+                    var frm = anim.Animations.AnimationDict[int.Parse(SelectedItem.Tag.ToString().Replace("Animation", ""))].DirectionDict[0].Frames;
+                    System.Drawing.Bitmap bmp = null;
+                    try
+                    {
+                        curAnimFrame = 0;
+                        bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
+                        var handle = bmp.GetHbitmap();
+                        ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                        UpdateImagePreview();
+                        AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{anim.Animations.AnimationDict[int.Parse(SelectedItem.Tag.ToString().Replace("Animation", ""))].DirectionDict[0].Frames.Count}";
+                    }
+                    catch (Exception exc) { Logger.Log(exc); }
+                    try
+                    {
+                        ObjectInfoText.Content =
+                            $"Name: {ItemParent.Header}\n" +
+                            $"Type: Active\n" +
+                            $"Size: {bmp.Width}x{bmp.Height}\n" +
+                            $"Animations: {anim.Animations.AnimationDict.Count}";
+                    }
+                    catch (Exception exc) { Logger.Log(exc); }
+                }
+                return;
+            }
             else
             {
+                AnimationLeft.Visibility = Visibility.Hidden;
+                AnimationRight.Visibility = Visibility.Hidden;
+                AnimationCurrentFrame.Content = "";
                 ObjectPicture.Source = null;
                 try
                 {
@@ -620,6 +691,8 @@ namespace Legacy_CTFAK_UI
 
             if (objectInfo.properties is Backdrop bd)
             {
+                AnimationLeft.Visibility = Visibility.Hidden;
+                AnimationRight.Visibility = Visibility.Hidden;
                 if (bd.Image == null) return;
                 System.Drawing.Bitmap bmp = null;
                 try
@@ -627,7 +700,7 @@ namespace Legacy_CTFAK_UI
                     bmp = currentReader.getGameData().Images.Items[bd.Image].bitmap;
                     var handle = bmp.GetHbitmap();
                     ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                    RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                    UpdateImagePreview();
                     AnimationCurrentFrame.Content = "";
                 }
                 catch (Exception exc) { Logger.Log(exc); }
@@ -643,6 +716,8 @@ namespace Legacy_CTFAK_UI
 
             if (objectInfo.properties is Quickbackdrop qbd)
             {
+                AnimationLeft.Visibility = Visibility.Hidden;
+                AnimationRight.Visibility = Visibility.Hidden;
                 if (qbd.Image == null) return;
                 System.Drawing.Bitmap bmp = null;
                 try
@@ -650,7 +725,7 @@ namespace Legacy_CTFAK_UI
                     bmp = currentReader.getGameData().Images.Items[qbd.Image].bitmap;
                     var handle = bmp.GetHbitmap();
                     ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                    RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                    UpdateImagePreview();
                     AnimationCurrentFrame.Content = "";
                 }
                 catch (Exception exc) { Logger.Log(exc); }
@@ -666,8 +741,10 @@ namespace Legacy_CTFAK_UI
 
             if (objectInfo.properties is ObjectCommon common)
             {
-                if (common.Identifier == "SPRI" || common.Identifier == "SP")
+                if (common.Identifier == "SPRI" || common.Identifier == "SP" || !Settings.twofiveplus && common.Parent.ObjectType == 2)
                 {
+                    AnimationLeft.Visibility = Visibility.Visible;
+                    AnimationRight.Visibility = Visibility.Visible;
                     if (common.Animations.AnimationDict == null) return;
                     if (common.Animations.AnimationDict[0].DirectionDict == null) return;
                     if (common.Animations.AnimationDict[0].DirectionDict[0].Frames == null) return;
@@ -675,11 +752,11 @@ namespace Legacy_CTFAK_UI
                     System.Drawing.Bitmap bmp = null;
                     try
                     {
+                        curAnimFrame = 0;
                         bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
                         var handle = bmp.GetHbitmap();
                         ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                        RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
-                        curAnimFrame = 0;
+                        UpdateImagePreview();
                         AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count}";
                     }
                     catch (Exception exc) { Logger.Log(exc); }
@@ -693,21 +770,33 @@ namespace Legacy_CTFAK_UI
                     }
                     catch (Exception exc) { Logger.Log(exc); }
                 }
-                else if (common.Identifier == "CNTR" || common.Identifier == "CN")
+                else if (common.Identifier == "CNTR" || common.Identifier == "CN" || !Settings.twofiveplus && common.Parent.ObjectType == 7)
                 {
+                    AnimationLeft.Visibility = Visibility.Visible;
+                    AnimationRight.Visibility = Visibility.Visible;
                     var counter = common.Counters;
-                    if (counter == null) return;
+                    if (counter == null)
+                    {
+                        AnimationLeft.Visibility = Visibility.Hidden;
+                        AnimationRight.Visibility = Visibility.Hidden;
+                        ObjectPicture.Source = null;
+                        AnimationCurrentFrame.Content = "";
+                        ObjectInfoText.Content =
+                            $"Name: {objectInfo.name}\n" +
+                            $"Type: Counter\n";
+                        return;
+                    }
                     if (!(counter.DisplayType == 1 || counter.DisplayType == 4 || counter.DisplayType == 50)) return;
                     if (counter.Frames == null) return;
                     var frm = counter.Frames;
                     System.Drawing.Bitmap bmp = null;
                     try
                     {
+                        curAnimFrame = 0;
                         bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
                         var handle = bmp.GetHbitmap();
                         ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                        RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
-                        curAnimFrame = 0;
+                        UpdateImagePreview();
                         AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{counter.Frames.Count}";
                     }
                     catch (Exception exc) { Logger.Log(exc); }
@@ -720,21 +809,58 @@ namespace Legacy_CTFAK_UI
                     }
                     catch (Exception exc) { Logger.Log(exc); }
                 }
-                else if (common.Identifier == "TEXT" || common.Identifier == "TE")
+                else if (common.Identifier == "TEXT" || common.Identifier == "TE" || !Settings.twofiveplus && common.Parent.ObjectType == 3)
                 {
+                    AnimationLeft.Visibility = Visibility.Hidden;
+                    AnimationRight.Visibility = Visibility.Hidden;
+                    ObjectPicture.Source = null;
+                    AnimationCurrentFrame.Content = "";
+                    System.Drawing.Bitmap bmp = new System.Drawing.Bitmap((int)ObjectPicture.Width, (int)ObjectPicture.Height);
+                    try
+                    {
+                        System.Drawing.RectangleF rectf = new System.Drawing.RectangleF(0, 0, bmp.Width, bmp.Height);
+                        System.Drawing.Graphics g = System.Drawing.Graphics.FromImage(bmp);
+                        g.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
+                        g.PixelOffsetMode = System.Drawing.Drawing2D.PixelOffsetMode.HighQuality;
+                        g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+                        System.Drawing.StringFormat format = new System.Drawing.StringFormat()
+                        {
+                            Alignment = System.Drawing.StringAlignment.Center,
+                            LineAlignment = System.Drawing.StringAlignment.Center
+                        };
+
+                        System.Drawing.SolidBrush brush = new System.Drawing.SolidBrush(System.Drawing.ColorTranslator.FromHtml(Color));
+                        g.DrawString(common.Text.Items[curAnimFrame].Value, new System.Drawing.Font("Courier New", (int)ObjectPicture.Width / 25, System.Drawing.FontStyle.Bold), brush, rectf, format);
+                        g.Flush();
+
+                        var handle = bmp.GetHbitmap();
+                        ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                        UpdateImagePreview();
+                        AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Text.Items.Count}";
+                    }
+                    catch (Exception exc) { Logger.Log(exc); }
                     try
                     {
                         ObjectInfoText.Content =
                             $"Name: {objectInfo.name}\n" +
-                            $"Type: String\n" +
-                            $"Paragraphs: {common.Text.Items.Count}";
+                            $"Type: String\n"/* +
+                            $"Paragraphs: {common.Text.Items.Count}"*/;
                     }
                     catch (Exception exc) { Logger.Log(exc); }
                 }
                 else
                 {
+                    AnimationLeft.Visibility = Visibility.Visible;
+                    AnimationRight.Visibility = Visibility.Visible;
                     ObjectPicture.Source = null;
                     AnimationCurrentFrame.Content = "";
+                    try
+                    {
+                        ObjectInfoText.Content =
+                            $"Name: {objectInfo.name}\n" +
+                            $"Identifier: {common.Identifier}\n";
+                    }
+                    catch (Exception exc) { Logger.Log(exc); }
                 }
             }
             //MemoryStream bytes = new MemoryStream(currentReader.getGameData().frameitems[int.Parse(SelectedItem.Tag.ToString())]));
@@ -744,12 +870,45 @@ namespace Legacy_CTFAK_UI
         private void AnimationLeft_Click(object sender, RoutedEventArgs e)
         {
             if (ObjectsTreeView.Items.Count == 0) return;
-            if (ObjectsTreeView.SelectedItem != null)
+            TreeViewItem SelectedItem = (TreeViewItem)ObjectsTreeView.SelectedItem;
+            if (SelectedItem != null)
             {
-                TreeViewItem SelectedItem = (TreeViewItem)ObjectsTreeView.SelectedItem;
+                if (SelectedItem.Tag.ToString().Contains("Animation"))
+                {
+                    AnimationLeft.Visibility = Visibility.Visible;
+                    AnimationRight.Visibility = Visibility.Visible;
+                    TreeViewItem ItemParent = (TreeViewItem)SelectedItem.Parent;
+                    var animInfo = currentReader.getGameData().frameitems[int.Parse(ItemParent.Tag.ToString().Replace("Object", ""))];
+                    if (animInfo.properties is ObjectCommon anim)
+                    {
+                        curAnimFrame--;
+                        if (curAnimFrame < 0) curAnimFrame = anim.Animations.AnimationDict[int.Parse(SelectedItem.Tag.ToString().Replace("Animation", ""))].DirectionDict[0].Frames.Count - 1;
+                        var frm = anim.Animations.AnimationDict[int.Parse(SelectedItem.Tag.ToString().Replace("Animation", ""))].DirectionDict[0].Frames;
+                        System.Drawing.Bitmap bmp = null;
+                        try
+                        {
+                            bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
+                            var handle = bmp.GetHbitmap();
+                            ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                            UpdateImagePreview();
+                            AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{anim.Animations.AnimationDict[int.Parse(SelectedItem.Tag.ToString().Replace("Animation", ""))].DirectionDict[0].Frames.Count}";
+                        }
+                        catch (Exception exc) { Logger.Log(exc); }
+                        try
+                        {
+                            ObjectInfoText.Content =
+                                $"Name: {ItemParent.Header}\n" +
+                                $"Type: Active\n" +
+                                $"Size: {bmp.Width}x{bmp.Height}\n" +
+                                $"Animations: {anim.Animations.AnimationDict.Count}";
+                        }
+                        catch (Exception exc) { Logger.Log(exc); }
+                    }
+                    return;
+                }
                 if (currentReader.getGameData().frameitems[int.Parse(SelectedItem.Tag.ToString().Replace("Object", ""))].properties is ObjectCommon common)
                 {
-                    if (common.Identifier == "SPRI" || common.Identifier == "SP")
+                    if (common.Identifier == "SPRI" || common.Identifier == "SP" || !Settings.twofiveplus && common.Parent.ObjectType == 2)
                     {
                         if (common.Animations?.AnimationDict[0] == null) return;
                         if (common.Animations?.AnimationDict[0].DirectionDict[0] == null) return;
@@ -761,12 +920,12 @@ namespace Legacy_CTFAK_UI
                         {
                             var handle = currentReader.getGameData().Images.Items[frm].bitmap.GetHbitmap();
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                            RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                            UpdateImagePreview();
                             AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count}";
                         }
                         catch (Exception exc) { Logger.Log(exc); }
                     }
-                    else if (common.Identifier == "CNTR" || common.Identifier == "CN")
+                    else if (common.Identifier == "CNTR" || common.Identifier == "CN" || !Settings.twofiveplus && common.Parent.ObjectType == 7)
                     {
                         var counter = common.Counters;
                         if (counter == null) return;
@@ -779,7 +938,7 @@ namespace Legacy_CTFAK_UI
                         {
                             var handle = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap.GetHbitmap();
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                            RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                            UpdateImagePreview();
                             AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{counter.Frames.Count}";
                         }
                         catch (Exception exc) { Logger.Log(exc); }
@@ -791,12 +950,45 @@ namespace Legacy_CTFAK_UI
         private void AnimationRight_Click(object sender, RoutedEventArgs e)
         {
             if (ObjectsTreeView.Items.Count == 0) return;
-            if (ObjectsTreeView.SelectedItem != null)
+            TreeViewItem SelectedItem = (TreeViewItem)ObjectsTreeView.SelectedItem;
+            if (SelectedItem != null)
             {
-                TreeViewItem SelectedItem = (TreeViewItem)ObjectsTreeView.SelectedItem;
+                if (SelectedItem.Tag.ToString().Contains("Animation"))
+                {
+                    AnimationLeft.Visibility = Visibility.Visible;
+                    AnimationRight.Visibility = Visibility.Visible;
+                    TreeViewItem ItemParent = (TreeViewItem)SelectedItem.Parent;
+                    var animInfo = currentReader.getGameData().frameitems[int.Parse(ItemParent.Tag.ToString().Replace("Object", ""))];
+                    if (animInfo.properties is ObjectCommon anim)
+                    {
+                        curAnimFrame++;
+                        if (curAnimFrame > anim.Animations.AnimationDict[int.Parse(SelectedItem.Tag.ToString().Replace("Animation", ""))].DirectionDict[0].Frames.Count - 1) curAnimFrame = 0;
+                        var frm = anim.Animations.AnimationDict[int.Parse(SelectedItem.Tag.ToString().Replace("Animation", ""))].DirectionDict[0].Frames;
+                        System.Drawing.Bitmap bmp = null;
+                        try
+                        {
+                            bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
+                            var handle = bmp.GetHbitmap();
+                            ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                            UpdateImagePreview();
+                            AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{anim.Animations.AnimationDict[int.Parse(SelectedItem.Tag.ToString().Replace("Animation", ""))].DirectionDict[0].Frames.Count}";
+                        }
+                        catch (Exception exc) { Logger.Log(exc); }
+                        try
+                        {
+                            ObjectInfoText.Content =
+                                $"Name: {ItemParent.Header}\n" +
+                                $"Type: Active\n" +
+                                $"Size: {bmp.Width}x{bmp.Height}\n" +
+                                $"Animations: {anim.Animations.AnimationDict.Count}";
+                        }
+                        catch (Exception exc) { Logger.Log(exc); }
+                    }
+                    return;
+                }
                 if (currentReader.getGameData().frameitems[int.Parse(SelectedItem.Tag.ToString().Replace("Object", ""))].properties is ObjectCommon common)
                 {
-                    if (common.Identifier == "SPRI" || common.Identifier == "SP")
+                    if (common.Identifier == "SPRI" || common.Identifier == "SP" || !Settings.twofiveplus && common.Parent.ObjectType == 2)
                     {
                         if (common.Animations?.AnimationDict[0] == null) return;
                         if (common.Animations?.AnimationDict[0].DirectionDict[0] == null) return;
@@ -808,12 +1000,12 @@ namespace Legacy_CTFAK_UI
                         {
                             var handle = currentReader.getGameData().Images.Items[frm].bitmap.GetHbitmap();
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                            RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                            UpdateImagePreview();
                             AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count}";
                         }
                         catch (Exception exc) { Logger.Log(exc); }
                     }
-                    else if (common.Identifier == "CNTR" || common.Identifier == "CN")
+                    else if (common.Identifier == "CNTR" || common.Identifier == "CN" || !Settings.twofiveplus && common.Parent.ObjectType == 7)
                     {
                         var counter = common.Counters;
                         if (counter == null) return;
@@ -826,7 +1018,7 @@ namespace Legacy_CTFAK_UI
                         {
                             var handle = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap.GetHbitmap();
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                            RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+                            UpdateImagePreview();
                             AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{counter.Frames.Count}";
                         }
                         catch (Exception exc) { Logger.Log(exc); }
@@ -844,6 +1036,15 @@ namespace Legacy_CTFAK_UI
         private void ActivateButton_Click(object sender, RoutedEventArgs e)
         {
 
+        }
+
+        private void UpdateImagePreview()
+        {
+            RenderOptions.SetBitmapScalingMode(ObjectPicture, BitmapScalingMode.NearestNeighbor);
+            if (ObjectPicture.Source.Width > ObjectPicture.Width || ObjectPicture.Source.Height > ObjectPicture.Height)
+                ObjectPicture.Stretch = Stretch.Uniform;
+            else
+                ObjectPicture.Stretch = Stretch.None;
         }
     }
 }

@@ -172,7 +172,7 @@
             <Rectangle x:Name="ObjectsSideBorder" HorizontalAlignment="Center" Height="500" VerticalAlignment="Top" Width="3" Fill="#FF0E0E0E" Canvas.Left="513" Panel.ZIndex="1"/>
             <Button x:Name="PlayAnimationButton" Content="Play Animation" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Top="442" Width="513" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" FontFamily="Courier New" FontWeight="Bold" Height="29" Visibility="Hidden"/>
             <Label x:Name="ObjectInfoText" Content="" Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" HorizontalAlignment="Center" VerticalAlignment="Top" Width="513" Height="387" Panel.ZIndex="1"/>
-            <Image x:Name="ObjectPicture" HorizontalAlignment="Stretch" Height="413" VerticalAlignment="Stretch" Width="513" StretchDirection="Both" RenderTransformOrigin="0.5,0.5" Canvas.Top="0"/>
+            <Image x:Name="ObjectPicture" HorizontalAlignment="Stretch" Height="413" VerticalAlignment="Stretch" Width="513" StretchDirection="Both" RenderTransformOrigin="0.5,0.5" Canvas.Top="0" Stretch="None"/>
             <TreeView Name="ObjectsTreeView" HorizontalAlignment="Center" VerticalAlignment="Center" Width="187" Height="502" Background="Black" BorderBrush="{x:Null}" Foreground="#FFDF7226" Canvas.Left="513" Padding="-2,1,1,1" Canvas.Top="-1" SelectedItemChanged="SelectObject" >
                 <TreeViewItem x:Name="ItemTemplate4" Header="Item" Foreground="#FFDF7226" FontFamily="Courier New" FontSize="14" Padding="0,1,0,0"/>
             </TreeView>
