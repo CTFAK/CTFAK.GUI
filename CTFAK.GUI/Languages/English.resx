@@ -1,0 +1,342 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Active" xml:space="preserve">
+    <value>Active</value>
+  </data>
+  <data name="Animation" xml:space="preserve">
+    <value>Animation</value>
+  </data>
+  <data name="Animations" xml:space="preserve">
+    <value>Animations</value>
+  </data>
+  <data name="Backdrop" xml:space="preserve">
+    <value>Backdrop</value>
+  </data>
+  <data name="Build" xml:space="preserve">
+    <value>Build</value>
+  </data>
+  <data name="ColorLang" xml:space="preserve">
+    <value>Color:
+
+Lang:</value>
+  </data>
+  <data name="ConsoleCaps" xml:space="preserve">
+    <value>CONSOLE</value>
+  </data>
+  <data name="Copyright" xml:space="preserve">
+    <value>Copyright</value>
+  </data>
+  <data name="Counter" xml:space="preserve">
+    <value>Counter</value>
+  </data>
+  <data name="Dump" xml:space="preserve">
+    <value>Dump</value>
+  </data>
+  <data name="DumpAll" xml:space="preserve">
+    <value>Dump All</value>
+  </data>
+  <data name="DumpExtensions" xml:space="preserve">
+    <value>Dump Extensions</value>
+  </data>
+  <data name="DumpImages" xml:space="preserve">
+    <value>Dump Images</value>
+  </data>
+  <data name="DumpMFA" xml:space="preserve">
+    <value>Dump MFA</value>
+  </data>
+  <data name="DumpMusic" xml:space="preserve">
+    <value>Dump Music</value>
+  </data>
+  <data name="DumpSelected" xml:space="preserve">
+    <value>Dump Selected</value>
+  </data>
+  <data name="DumpSortedImages" xml:space="preserve">
+    <value>Dump Sorted Images</value>
+  </data>
+  <data name="DumpSounds" xml:space="preserve">
+    <value>Dump Sounds</value>
+  </data>
+  <data name="DumpWarning" xml:space="preserve">
+    <value>By using CTFAK you agree that you will only
+use the decompiled MFAs for personal use and
+educational purposes.
+
+You also agree that unless you are the
+original creator or have been given
+permission, you will not recompile any games.
+using this tool.</value>
+  </data>
+  <data name="Extensions" xml:space="preserve">
+    <value>Extensions</value>
+  </data>
+  <data name="Filters" xml:space="preserve">
+    <value>Filters</value>
+  </data>
+  <data name="Flag" xml:space="preserve">
+    <value>Flag</value>
+  </data>
+  <data name="Frame" xml:space="preserve">
+    <value>Frame</value>
+  </data>
+  <data name="Frames" xml:space="preserve">
+    <value>Frames</value>
+  </data>
+  <data name="FusionSelector" xml:space="preserve">
+    <value>Fusion application</value>
+  </data>
+  <data name="ID" xml:space="preserve">
+    <value>Id</value>
+  </data>
+  <data name="Identifier" xml:space="preserve">
+    <value>Identifier</value>
+  </data>
+  <data name="Libraries" xml:space="preserve">
+    <value>Libraries</value>
+  </data>
+  <data name="LoadChunks" xml:space="preserve">
+    <value>chunks</value>
+  </data>
+  <data name="LoaderData" xml:space="preserve">
+    <value>Loader Data</value>
+  </data>
+  <data name="LoadFrames" xml:space="preserve">
+    <value>frames</value>
+  </data>
+  <data name="LoadImages" xml:space="preserve">
+    <value>images</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading</value>
+  </data>
+  <data name="LoadSounds" xml:space="preserve">
+    <value>sounds</value>
+  </data>
+  <data name="Main" xml:space="preserve">
+    <value>Main</value>
+  </data>
+  <data name="MFADump" xml:space="preserve">
+    <value>MFA Dump</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Name</value>
+  </data>
+  <data name="NumberofItems" xml:space="preserve">
+    <value>Number of Items</value>
+  </data>
+  <data name="NumFrames" xml:space="preserve">
+    <value>Number of Frames</value>
+  </data>
+  <data name="NumImages" xml:space="preserve">
+    <value>Number of Images</value>
+  </data>
+  <data name="NumMusic" xml:space="preserve">
+    <value>Number of Music</value>
+  </data>
+  <data name="NumObjects" xml:space="preserve">
+    <value>Number of Objects</value>
+  </data>
+  <data name="NumSounds" xml:space="preserve">
+    <value>Number of Sounds</value>
+  </data>
+  <data name="Objects" xml:space="preserve">
+    <value>Objects</value>
+  </data>
+  <data name="OpenDumpFolder" xml:space="preserve">
+    <value>Open Dump Folder</value>
+  </data>
+  <data name="OpenPlugin" xml:space="preserve">
+    <value>Execute</value>
+  </data>
+  <data name="PackData" xml:space="preserve">
+    <value>Pack Data</value>
+  </data>
+  <data name="PackDataInfo" xml:space="preserve">
+    <value>TO BE FILLED</value>
+  </data>
+  <data name="Paragraphs" xml:space="preserve">
+    <value>Paragraphs</value>
+  </data>
+  <data name="PlayAnimation" xml:space="preserve">
+    <value>Play Animation</value>
+  </data>
+  <data name="PlaySound" xml:space="preserve">
+    <value>Play Sound</value>
+  </data>
+  <data name="PluginInfo" xml:space="preserve">
+    <value>TO BE FILLED</value>
+  </data>
+  <data name="Plugins" xml:space="preserve">
+    <value>Plugins</value>
+  </data>
+  <data name="ProductVer" xml:space="preserve">
+    <value>Product Version</value>
+  </data>
+  <data name="QuickBackdrop" xml:space="preserve">
+    <value>Quick Backdrop</value>
+  </data>
+  <data name="RemoveEvents" xml:space="preserve">
+    <value>Remove Events</value>
+  </data>
+  <data name="RemoveImages" xml:space="preserve">
+    <value>Remove Images</value>
+  </data>
+  <data name="RuntimeVer" xml:space="preserve">
+    <value>Runtime Version</value>
+  </data>
+  <data name="SelectFile" xml:space="preserve">
+    <value>Select File</value>
+  </data>
+  <data name="SelectGame" xml:space="preserve">
+    <value>Select game</value>
+  </data>
+  <data name="SetObjectIcons" xml:space="preserve">
+    <value>Set Object Icons</value>
+  </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Settings</value>
+  </data>
+  <data name="Size" xml:space="preserve">
+    <value>Size</value>
+  </data>
+  <data name="SoundInfo" xml:space="preserve">
+    <value>TO BE FILLED</value>
+  </data>
+  <data name="Sounds" xml:space="preserve">
+    <value>Sounds</value>
+  </data>
+  <data name="StopSound" xml:space="preserve">
+    <value>Stop Sound</value>
+  </data>
+  <data name="String" xml:space="preserve">
+    <value>String</value>
+  </data>
+  <data name="Title" xml:space="preserve">
+    <value>Title</value>
+  </data>
+  <data name="TraceChunks" xml:space="preserve">
+    <value>Trace Chunks</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Update" xml:space="preserve">
+    <value>Update</value>
+  </data>
+</root>
