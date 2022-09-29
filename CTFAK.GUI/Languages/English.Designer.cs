@@ -106,9 +106,9 @@ namespace Legacy_CTFAK_UI.Languages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Color:
+        ///   Looks up a localized string similar to Color
         ///
-        ///Lang:.
+        ///Lang.
         /// </summary>
         internal static string ColorLang {
             get {

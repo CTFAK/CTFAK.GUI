@@ -106,9 +106,9 @@ namespace Legacy_CTFAK_UI.Languages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Color:
+        ///   Looks up a localized string similar to Color
         ///
-        ///Lenguaje:.
+        ///Idioma.
         /// </summary>
         internal static string ColorLang {
             get {
@@ -207,7 +207,7 @@ namespace Legacy_CTFAK_UI.Languages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dump de Imágenes Ordenadas.
+        ///   Looks up a localized string similar to Dump Ordenado Imágen.
         /// </summary>
         internal static string DumpSortedImages {
             get {
@@ -225,14 +225,14 @@ namespace Legacy_CTFAK_UI.Languages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to By using CTFAK you agree that you will only
-        ///use the decompiled MFAs for personal use and
-        ///educational purposes.
+        ///   Looks up a localized string similar to Al usar CTFAK, usted acepta que solo podrá
+        ///utilizar los MFA descompilados para uso personal
+        ///y propósitos educativos.
         ///
-        ///You also agree that unless you are the
-        ///original creator or have been given
-        ///permission, you will not recompile any games.
-        ///using this tool..
+        ///También acepta que, a menos que usted sea el
+        ///creador original o se les ha dado permiso, no
+        ///volverás a compilar ningún juego. utilizando
+        ///esta herramienta..
         /// </summary>
         internal static string DumpWarning {
             get {
@@ -466,7 +466,7 @@ namespace Legacy_CTFAK_UI.Languages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Abrir Carpeta del Dump.
+        ///   Looks up a localized string similar to Abrir Carpeta de Dump.
         /// </summary>
         internal static string OpenDumpFolder {
             get {
@@ -484,7 +484,7 @@ namespace Legacy_CTFAK_UI.Languages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Empacar la información.
+        ///   Looks up a localized string similar to Empacar Data.
         /// </summary>
         internal static string PackData {
             get {
@@ -592,7 +592,7 @@ namespace Legacy_CTFAK_UI.Languages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Seleccionar Archivo.
+        ///   Looks up a localized string similar to Seleccion Archivo.
         /// </summary>
         internal static string SelectFile {
             get {

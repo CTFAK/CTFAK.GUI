@@ -133,9 +133,9 @@
     <value>Build</value>
   </data>
   <data name="ColorLang" xml:space="preserve">
-    <value>Color:
+    <value>Color
 
-Lang:</value>
+Lang</value>
   </data>
   <data name="ConsoleCaps" xml:space="preserve">
     <value>CONSOLE</value>

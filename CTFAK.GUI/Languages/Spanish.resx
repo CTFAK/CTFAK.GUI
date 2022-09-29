@@ -133,9 +133,9 @@
     <value>Build</value>
   </data>
   <data name="ColorLang" xml:space="preserve">
-    <value>Color:
+    <value>Color
 
-Lenguaje:</value>
+Idioma</value>
   </data>
   <data name="ConsoleCaps" xml:space="preserve">
     <value>CONSOLA</value>
@@ -168,20 +168,20 @@ Lenguaje:</value>
     <value>Dump Seleccionado</value>
   </data>
   <data name="DumpSortedImages" xml:space="preserve">
-    <value>Dump de Imágenes Ordenadas</value>
+    <value>Dump Ordenado Imágen</value>
   </data>
   <data name="DumpSounds" xml:space="preserve">
     <value>Dump de Sonidos</value>
   </data>
   <data name="DumpWarning" xml:space="preserve">
-    <value>By using CTFAK you agree that you will only
-use the decompiled MFAs for personal use and
-educational purposes.
+    <value>Al usar CTFAK, usted acepta que solo podrá
+utilizar los MFA descompilados para uso personal
+y propósitos educativos.
 
-You also agree that unless you are the
-original creator or have been given
-permission, you will not recompile any games.
-using this tool.</value>
+También acepta que, a menos que usted sea el
+creador original o se les ha dado permiso, no
+volverás a compilar ningún juego. utilizando
+esta herramienta.</value>
   </data>
   <data name="Extensions" xml:space="preserve">
     <value>Extensiones</value>
@@ -259,13 +259,13 @@ using this tool.</value>
     <value>Objetos</value>
   </data>
   <data name="OpenDumpFolder" xml:space="preserve">
-    <value>Abrir Carpeta del Dump</value>
+    <value>Abrir Carpeta de Dump</value>
   </data>
   <data name="OpenPlugin" xml:space="preserve">
     <value>Ejecutar</value>
   </data>
   <data name="PackData" xml:space="preserve">
-    <value>Empacar la información</value>
+    <value>Empacar Data</value>
   </data>
   <data name="PackDataInfo" xml:space="preserve">
     <value>PARA SER RELLENADO</value>
@@ -301,7 +301,7 @@ using this tool.</value>
     <value>Versión de tiempo de ejecución</value>
   </data>
   <data name="SelectFile" xml:space="preserve">
-    <value>Seleccionar Archivo</value>
+    <value>Seleccion Archivo</value>
   </data>
   <data name="SelectGame" xml:space="preserve">
     <value>Seleccionar Juego</value>

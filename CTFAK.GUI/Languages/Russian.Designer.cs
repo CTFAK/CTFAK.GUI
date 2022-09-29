@@ -106,9 +106,9 @@ namespace Legacy_CTFAK_UI.Languages {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Цвет:
+        ///   Looks up a localized string similar to Цвет
         ///
-        ///Язык:.
+        ///Язык.
         /// </summary>
         internal static string ColorLang {
             get {
