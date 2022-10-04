@@ -233,6 +233,9 @@
   <data name="MFADump" xml:space="preserve">
     <value>Экспорт MFA</value>
   </data>
+  <data name="Movements" xml:space="preserve">
+    <value>Перемещения</value>
+  </data>
   <data name="Name" xml:space="preserve">
     <value>Имя</value>
   </data>

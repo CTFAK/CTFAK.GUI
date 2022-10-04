@@ -166,7 +166,7 @@
             <TreeView Name="PackedTreeView" HorizontalAlignment="Left" VerticalAlignment="Top" Width="225" Height="500" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFDF7226" Canvas.Left="474" />
         </Canvas>
         <Canvas x:Name="ObjectsCanvas" Margin="0,30,291,0" Visibility="Hidden" Background="#FF404040">
-            <Button x:Name="DumpSelectedButton" Content="Dump Selected" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Top="413" Width="513" FontSize="18" FontFamily="Courier New" FontWeight="Bold" Height="29" Visibility="Hidden"/>
+            <Button x:Name="DumpSelectedButton" Content="Dump Selected" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Top="413" Width="513" FontSize="18" FontFamily="Courier New" FontWeight="Bold" Height="29" Visibility="Hidden" Click="DumpSelectedImage"/>
             <Rectangle x:Name="ObjectsSideBorder" HorizontalAlignment="Center" Height="500" VerticalAlignment="Top" Width="3" Fill="#FF0E0E0E" Canvas.Left="513" Panel.ZIndex="1"/>
             <Button x:Name="PlayAnimationButton" Content="Play Animation" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Top="442" Width="513" FontSize="18" HorizontalAlignment="Center" VerticalAlignment="Top" FontFamily="Courier New" FontWeight="Bold" Height="29" Visibility="Hidden"/>
             <Label x:Name="ObjectInfoText" Content="" Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" HorizontalAlignment="Center" VerticalAlignment="Top" Width="513" Height="387" Panel.ZIndex="1"/>
@@ -192,9 +192,9 @@
         </Canvas>
         <Canvas x:Name="SettingsCanvas" Margin="0,30,291,0" Visibility="Hidden">
             <Button x:Name="UpdateButton" Content="Update" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="73"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Click="UpdateSettings"/>
-            <Label x:Name="SettingsInfoText" Content="Color: &#xA;&#xA;Lang: " Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="6" HorizontalAlignment="Left" VerticalAlignment="Center" Width="70" Canvas.Top="4"/>
-            <TextBox x:Name="ColorTextBox" Canvas.Left="69" TextWrapping="Wrap" Text="" Canvas.Top="8" Width="94" Background="{x:Null}" Foreground="#FFDF7226" FontFamily="Courier New" FontSize="14" BorderBrush="#FF2B2B2B" SelectionBrush="#FF0078D7" HorizontalAlignment="Left" VerticalAlignment="Center" Height="18" Padding="0,0.5,0,0"/>
-            <ComboBox x:Name="LanguageCombo" Canvas.Left="69" Canvas.Top="39" Width="94" HorizontalAlignment="Center" VerticalAlignment="Top" Height="18" Padding="0,0.5,0,0" Background="#FF393939" Foreground="#000000" BorderBrush="#FF2B2B2B" FontFamily="Courier New" FontSize="14" SelectedIndex="0">
+            <Label x:Name="SettingsInfoText" Content="Color &#xA;&#xA;Lang " Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="6" HorizontalAlignment="Left" VerticalAlignment="Center" Width="70" Canvas.Top="4"/>
+            <TextBox x:Name="ColorTextBox" Canvas.Left="69" TextWrapping="Wrap" Text="" Canvas.Top="8" Width="110" Background="{x:Null}" Foreground="#FFDF7226" FontFamily="Courier New" FontSize="14" BorderBrush="#FF2B2B2B" SelectionBrush="#FF0078D7" HorizontalAlignment="Left" VerticalAlignment="Center" Height="18" Padding="0,0.5,0,0"/>
+            <ComboBox x:Name="LanguageCombo" Canvas.Left="69" Canvas.Top="39" Width="110" HorizontalAlignment="Center" VerticalAlignment="Top" Height="18" Padding="0,0.5,0,0" Background="#FF393939" Foreground="#000000" BorderBrush="#FF2B2B2B" FontFamily="Courier New" FontSize="14" SelectedIndex="0">
                 <ComboBoxItem Content="English"/>
                 <ComboBoxItem Content="Russian"/>
                 <ComboBoxItem Content="Spanish"/>

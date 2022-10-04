@@ -16,6 +16,7 @@ using System.Linq;
 using System.Media;
 using System.Reflection;
 using System.Resources;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -41,6 +42,7 @@ namespace Legacy_CTFAK_UI
         public static string oldLanguage = "Legacy_CTFAK_UI.Languages.English";
         public static ResourceManager locRM = new ResourceManager(strLanguage, typeof(MainWindow).Assembly);
         public static ResourceManager oldRM = new ResourceManager(oldLanguage, typeof(MainWindow).Assembly);
+        public System.Drawing.Bitmap bitmapToSave;
 
         public void UpdateProgress(double incrementBy, double maximum, string loadType)
         {
@@ -328,6 +330,14 @@ namespace Legacy_CTFAK_UI
             filterItemHeader.FontSize = 14;
             filterItemHeader.Padding = new Thickness(1, 1, 0, 0);
             PackedTreeView.Items.Add(filterItemHeader);
+
+            TreeViewItem movementItemHeader = new TreeViewItem();
+            movementItemHeader.Header = locRM.GetString("Movements");
+            movementItemHeader.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+            movementItemHeader.FontFamily = new FontFamily("Courier New");
+            movementItemHeader.FontSize = 14;
+            movementItemHeader.Padding = new Thickness(1, 1, 0, 0);
+            PackedTreeView.Items.Add(movementItemHeader);
             foreach (var item in game.packData.Items)
             {
                 if (item.PackFilename == null || item.PackFilename.Length == 0) continue;
@@ -344,6 +354,8 @@ namespace Legacy_CTFAK_UI
                     dllItemHeader.Items.Add(dataItem);
                 else if (Path.GetExtension(item.PackFilename) == ".ift" || Path.GetExtension(item.PackFilename) == ".sft")
                     filterItemHeader.Items.Add(dataItem);
+                else if (Path.GetExtension(item.PackFilename) == ".mvx")
+                    movementItemHeader.Items.Add(dataItem);
                 else
                     PackedTreeView.Items.Add(dataItem);
                 packCount++;
@@ -826,11 +838,13 @@ namespace Legacy_CTFAK_UI
             {
                 AnimationLeft.Visibility = Visibility.Visible;
                 AnimationRight.Visibility = Visibility.Visible;
+                DumpSelectedButton.Visibility = Visibility.Hidden;
             }
             else if (SelectedItem.Tag.ToString().Contains("Animation"))
             {
                 AnimationLeft.Visibility = Visibility.Visible;
                 AnimationRight.Visibility = Visibility.Visible;
+                DumpSelectedButton.Visibility = Visibility.Visible;
                 TreeViewItem ItemParent = (TreeViewItem)SelectedItem.Parent;
                 var animInfo = currentReader.getGameData().frameitems[int.Parse(ItemParent.Tag.ToString().Replace("Object", ""))];
                 if (animInfo.properties is ObjectCommon anim)
@@ -841,6 +855,7 @@ namespace Legacy_CTFAK_UI
                     {
                         curAnimFrame = 0;
                         bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
+                        bitmapToSave = bmp;
                         var handle = bmp.GetHbitmap();
                         ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                         UpdateImagePreview();
@@ -863,6 +878,7 @@ namespace Legacy_CTFAK_UI
             {
                 AnimationLeft.Visibility = Visibility.Hidden;
                 AnimationRight.Visibility = Visibility.Hidden;
+                DumpSelectedButton.Visibility = Visibility.Hidden;
                 AnimationCurrentFrame.Content = "";
                 ObjectPicture.Source = null;
                 try
@@ -881,11 +897,13 @@ namespace Legacy_CTFAK_UI
             {
                 AnimationLeft.Visibility = Visibility.Hidden;
                 AnimationRight.Visibility = Visibility.Hidden;
+                DumpSelectedButton.Visibility = Visibility.Visible;
                 if (bd.Image == null) return;
                 System.Drawing.Bitmap bmp = null;
                 try
                 {
                     bmp = currentReader.getGameData().Images.Items[bd.Image].bitmap;
+                    bitmapToSave = bmp;
                     var handle = bmp.GetHbitmap();
                     ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                     UpdateImagePreview();
@@ -906,11 +924,13 @@ namespace Legacy_CTFAK_UI
             {
                 AnimationLeft.Visibility = Visibility.Hidden;
                 AnimationRight.Visibility = Visibility.Hidden;
+                DumpSelectedButton.Visibility = Visibility.Visible;
                 if (qbd.Image == null) return;
                 System.Drawing.Bitmap bmp = null;
                 try
                 {
                     bmp = currentReader.getGameData().Images.Items[qbd.Image].bitmap;
+                    bitmapToSave = bmp;
                     var handle = bmp.GetHbitmap();
                     ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                     UpdateImagePreview();
@@ -933,6 +953,7 @@ namespace Legacy_CTFAK_UI
                 {
                     AnimationLeft.Visibility = Visibility.Visible;
                     AnimationRight.Visibility = Visibility.Visible;
+                    DumpSelectedButton.Visibility = Visibility.Visible;
                     if (common.Animations.AnimationDict == null) return;
                     if (common.Animations.AnimationDict[0].DirectionDict == null) return;
                     if (common.Animations.AnimationDict[0].DirectionDict[0].Frames == null) return;
@@ -941,6 +962,7 @@ namespace Legacy_CTFAK_UI
                     try
                     {
                         bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
+                        bitmapToSave = bmp;
                         var handle = bmp.GetHbitmap();
                         ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                         UpdateImagePreview();
@@ -961,6 +983,7 @@ namespace Legacy_CTFAK_UI
                 {
                     AnimationLeft.Visibility = Visibility.Visible;
                     AnimationRight.Visibility = Visibility.Visible;
+                    DumpSelectedButton.Visibility = Visibility.Visible;
                     var counter = common.Counters;
                     if (counter == null)
                     {
@@ -980,6 +1003,7 @@ namespace Legacy_CTFAK_UI
                     try
                     {
                         bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
+                        bitmapToSave = bmp;
                         var handle = bmp.GetHbitmap();
                         ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                         UpdateImagePreview();
@@ -999,6 +1023,7 @@ namespace Legacy_CTFAK_UI
                 {
                     AnimationLeft.Visibility = Visibility.Visible;
                     AnimationRight.Visibility = Visibility.Visible;
+                    DumpSelectedButton.Visibility = Visibility.Hidden;
                     ObjectPicture.Source = null;
                     AnimationCurrentFrame.Content = "";
                     System.Drawing.Bitmap bmp = new System.Drawing.Bitmap((int)ObjectPicture.Width, (int)ObjectPicture.Height);
@@ -1038,6 +1063,7 @@ namespace Legacy_CTFAK_UI
                 {
                     AnimationLeft.Visibility = Visibility.Hidden;
                     AnimationRight.Visibility = Visibility.Hidden;
+                    DumpSelectedButton.Visibility = Visibility.Hidden;
                     ObjectPicture.Source = null;
                     AnimationCurrentFrame.Content = "";
                     try
@@ -1074,6 +1100,7 @@ namespace Legacy_CTFAK_UI
                         try
                         {
                             bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
+                            bitmapToSave = bmp;
                             var handle = bmp.GetHbitmap();
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                             UpdateImagePreview();
@@ -1105,6 +1132,7 @@ namespace Legacy_CTFAK_UI
                         try
                         {
                             var handle = currentReader.getGameData().Images.Items[frm].bitmap.GetHbitmap();
+                            bitmapToSave = currentReader.getGameData().Images.Items[frm].bitmap;
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                             UpdateImagePreview();
                             AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count}";
@@ -1123,6 +1151,7 @@ namespace Legacy_CTFAK_UI
                         try
                         {
                             var handle = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap.GetHbitmap();
+                            bitmapToSave = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                             UpdateImagePreview();
                             AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{counter.Frames.Count}";
@@ -1183,6 +1212,7 @@ namespace Legacy_CTFAK_UI
                         try
                         {
                             bmp = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
+                            bitmapToSave = bmp;
                             var handle = bmp.GetHbitmap();
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                             UpdateImagePreview();
@@ -1214,6 +1244,7 @@ namespace Legacy_CTFAK_UI
                         try
                         {
                             var handle = currentReader.getGameData().Images.Items[frm].bitmap.GetHbitmap();
+                            bitmapToSave = currentReader.getGameData().Images.Items[frm].bitmap;
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                             UpdateImagePreview();
                             AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count}";
@@ -1232,6 +1263,7 @@ namespace Legacy_CTFAK_UI
                         try
                         {
                             var handle = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap.GetHbitmap();
+                            bitmapToSave = currentReader.getGameData().Images.Items[frm[curAnimFrame]].bitmap;
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                             UpdateImagePreview();
                             AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{counter.Frames.Count}";
@@ -1325,6 +1357,20 @@ namespace Legacy_CTFAK_UI
                 Directory.CreateDirectory(dir);
                 File.WriteAllBytes(dir + packItem.PackFilename, packItem.Data);
             }
+        }
+
+        private void DumpSelectedImage(object sender, RoutedEventArgs e)
+        {
+            SaveFileDialog fdlg = new SaveFileDialog();
+            fdlg.Title = "Save Image";
+            fdlg.InitialDirectory = Directory.GetCurrentDirectory();
+            fdlg.FileName = ((TreeViewItem)ObjectsTreeView.SelectedItem).Header.ToString();
+            fdlg.DefaultExt = ".png";
+            fdlg.Filter = "Image File (*.png)|*.png";
+            fdlg.FilterIndex = 2;
+            fdlg.RestoreDirectory = true;
+            if (fdlg.ShowDialog() == true)
+                bitmapToSave.Save(fdlg.FileName);
         }
     }
 }

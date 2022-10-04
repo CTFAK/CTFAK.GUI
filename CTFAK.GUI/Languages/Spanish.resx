@@ -234,6 +234,9 @@ esta herramienta.</value>
   <data name="MFADump" xml:space="preserve">
     <value>Dump del MFA</value>
   </data>
+  <data name="Movements" xml:space="preserve">
+    <value>Movimientos</value>
+  </data>
   <data name="Name" xml:space="preserve">
     <value>Nombre</value>
   </data>

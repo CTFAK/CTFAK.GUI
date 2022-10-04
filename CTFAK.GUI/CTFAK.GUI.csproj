@@ -43,6 +43,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Languages\Romanian.Designer.cs">
+      <DependentUpon>Romanian.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
     <Compile Update="Languages\Spanish.Designer.cs">
       <DependentUpon>Spanish.resx</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -61,6 +66,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Languages\Romanian.resx">
+      <LastGenOutput>Romanian.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
     <EmbeddedResource Update="Languages\Spanish.resx">
       <LastGenOutput>Spanish.Designer.cs</LastGenOutput>
       <Generator>ResXFileCodeGenerator</Generator>

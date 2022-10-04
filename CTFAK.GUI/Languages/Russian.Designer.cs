@@ -393,6 +393,15 @@ namespace Legacy_CTFAK_UI.Languages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Перемещения.
+        /// </summary>
+        internal static string Movements {
+            get {
+                return ResourceManager.GetString("Movements", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Имя.
         /// </summary>
         internal static string Name {
