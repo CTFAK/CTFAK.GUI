@@ -3,7 +3,6 @@ A remake of the legacy CTFAK GUI using WPF.<br>
 Not finished, mainly developed by Yunivers with help from Kostya.
 
 # To-Do:
-- Plugin tab.
 - Functional console.
 - *Make the window resizable without issues.
 

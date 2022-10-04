@@ -35,6 +35,7 @@ namespace Legacy_CTFAK_UI
         public IFusionTool imageDumper;
         public IFusionTool soundDumper;
         public IFusionTool Decompiler;
+        public IFusionTool Plugin;
         public int curAnimFrame;
         public SoundPlayer CurrentPlayingSound;
         public static string Color = "#FFDF7226";
@@ -43,6 +44,7 @@ namespace Legacy_CTFAK_UI
         public static ResourceManager locRM = new ResourceManager(strLanguage, typeof(MainWindow).Assembly);
         public static ResourceManager oldRM = new ResourceManager(oldLanguage, typeof(MainWindow).Assembly);
         public System.Drawing.Bitmap bitmapToSave;
+        public List<IFusionTool> availableTools = new List<IFusionTool>();
 
         public void UpdateProgress(double incrementBy, double maximum, string loadType)
         {
@@ -137,18 +139,17 @@ namespace Legacy_CTFAK_UI
 
             VersionLabel.Content = $"CTFAK {version}";
 
-            /*List<LoadPlugin> availableTools = new List<LoadPlugin>();
             int toolID = 0;
             foreach (var item in Directory.GetFiles("Plugins", "*.dll"))
             {
                 var newAsm = Assembly.LoadFrom(Path.GetFullPath(item));
                 foreach (var pluginType in newAsm.GetTypes())
                 {
-                    if (pluginType.GetInterface(typeof(LoadPlugin).FullName) != null)
+                    if (pluginType.GetInterface(typeof(IFusionTool).FullName) != null)
                     {
-                        availableTools.Add((LoadPlugin)Activator.CreateInstance(pluginType));
+                        availableTools.Add((IFusionTool)Activator.CreateInstance(pluginType));
                         TreeViewItem TreeItem = new TreeViewItem();
-                        TreeItem.Header = pluginType.GetInterface(typeof(LoadPlugin).FullName);
+                        TreeItem.Header = availableTools[toolID].Name;
                         TreeItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                         TreeItem.FontFamily = new FontFamily("Courier New");
                         TreeItem.FontSize = 14;
@@ -158,7 +159,7 @@ namespace Legacy_CTFAK_UI
                         toolID++;
                     }
                 }
-            }*/
+            }
 
             //Sets the scaling properly so everything looks right.
             Width += 16;
@@ -1311,7 +1312,22 @@ namespace Legacy_CTFAK_UI
 
         private void ActivateButton_Click(object sender, RoutedEventArgs e)
         {
+            TreeViewItem item = (TreeViewItem)PluginsTreeView.SelectedItem;
+            if (item == null) return;
+            Plugin = availableTools[int.Parse(item.Tag.ToString())];
+            ActivateButton.IsEnabled = false;
+            Thread pluginsThread = new Thread(PluginThread);
+            pluginsThread.Name = "Plugin";
+            pluginsThread.Start();
+        }
 
+        void PluginThread()
+        {
+            Plugin.Execute(currentReader);
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                ActivateButton.IsEnabled = true;
+            }));
         }
 
         private void UpdateImagePreview()

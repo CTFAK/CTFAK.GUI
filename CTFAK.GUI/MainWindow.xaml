@@ -184,7 +184,7 @@
             <TreeView Name="SoundsTreeView" HorizontalAlignment="Left" VerticalAlignment="Top" Width="225" Height="500" Background="{x:Null}" BorderBrush="{x:Null}" Foreground="#FFDF7226" Canvas.Left="474" SelectedItemChanged="SoundTreeViewChanged" />
         </Canvas>
         <Canvas x:Name="PluginsCanvas" Margin="0,30,291,0" Visibility="Hidden">
-            <Button x:Name="ActivateButton" Content="Open Plugin" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="30"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Click="ActivateButton_Click"/>
+            <Button x:Name="ActivateButton" Content="Execute" HorizontalAlignment="Center" VerticalAlignment="Top" Foreground="#FFDF7226" BorderBrush="#FFDF7226" Background="#FF2A2A2A" Canvas.Left="7" Canvas.Top="30"  Width="156" Height="28" FontSize="14" FontFamily="Courier New" FontWeight="Bold" Click="ActivateButton_Click"/>
             <Rectangle x:Name="PluginsSideBorder" HorizontalAlignment="Left" Height="500" VerticalAlignment="Center" Width="3" Fill="#FF0E0E0E" Canvas.Left="488"/>
             <Label x:Name="PluginInfoText" Content="Name: " Foreground="#FFDF7226" FontSize="14" FontFamily="Courier New" Canvas.Left="6" HorizontalAlignment="Center" VerticalAlignment="Top" Width="148" Canvas.Top="1"/>
             <Label x:Name="PluginsInfoText" HorizontalAlignment="Left" Content="TO BE FILLED" HorizontalContentAlignment="Center" VerticalAlignment="Center" Foreground="#FFDF7226" Height="121" Width="488" FontSize="16" FontFamily="Courier New" Canvas.Top="379"/>
