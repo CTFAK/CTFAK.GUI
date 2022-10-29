@@ -11,25 +11,18 @@
   </PropertyGroup>
 
   <ItemGroup>
-	  <!--<None Remove="Assets\Test.png" />
-    <None Remove="Assets\Test2.png" />-->
     <None Remove="CTFAK2.png" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="CTFAK.Core">
-      <HintPath>..\..\CTFAK\Core\CTFAK.Core\bin\x64\Debug\net6.0-windows\CTFAK.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="WPFHexaEditor">
-      <HintPath>WPFHexaEditor.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-
-  <ItemGroup>
-	  <!--<Resource Include="Assets\Test.png" />
-    <Resource Include="Assets\Test2.png" />-->
-    <Resource Include="CTFAK2.png" />
-  </ItemGroup>
+	<ItemGroup>
+		<Resource Include="CTFAK2.png" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Reference Include="CTFAK.Core">
+			<HintPath>..\..\CTFAK\Core\CTFAK.Core\bin\x64\Debug\net6.0-windows\CTFAK.Core.dll</HintPath>
+		</Reference>
+	</ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Ionic.Zip" Version="1.9.1.8" />

@@ -4,6 +4,7 @@ using CTFAK.CCN.Chunks.Banks;
 using CTFAK.CCN.Chunks.Objects;
 using CTFAK.EXE;
 using CTFAK.FileReaders;
+using CTFAK.MFA;
 using CTFAK.Tools;
 using CTFAK.Utils;
 using Microsoft.Win32;
@@ -30,6 +31,11 @@ namespace Legacy_CTFAK_UI
 {
     public partial class MainWindow : Window
     {
+        [DllImport("Kernel32.dll")]
+        private static extern IntPtr GetConsoleWindow();
+        [DllImport("User32.dll")]
+        private static extern bool ShowWindow(IntPtr hWnd, int cmdShow);
+
         public static IFileReader currentReader;
         public IFusionTool sortedImageDumper;
         public IFusionTool imageDumper;
@@ -45,6 +51,10 @@ namespace Legacy_CTFAK_UI
         public static ResourceManager oldRM = new ResourceManager(oldLanguage, typeof(MainWindow).Assembly);
         public System.Drawing.Bitmap bitmapToSave;
         public List<IFusionTool> availableTools = new List<IFusionTool>();
+        public int animSpeed;
+        public List<int> animFrames = new List<int>();
+        public bool loopAnim;
+        public bool playingAnim;
 
         public void UpdateProgress(double incrementBy, double maximum, string loadType)
         {
@@ -109,7 +119,12 @@ namespace Legacy_CTFAK_UI
         {
             InitializeComponent();
             Core.Init();
-            ImageBank.OnImageLoaded += (current, all) =>
+
+            IntPtr hWnd = GetConsoleWindow();
+            if (hWnd != IntPtr.Zero)
+                ShowWindow(hWnd, 0);
+
+                ImageBank.OnImageLoaded += (current, all) =>
             {
                 UpdateProgress(1, all, locRM.GetString("LoadImages"));
             };
@@ -125,10 +140,15 @@ namespace Legacy_CTFAK_UI
             {
                 UpdateProgress(1, all, locRM.GetString("LoadSounds"));
             };
-            /*Logger.onLog += (log) =>
+            Logger.OnLogged += (log) =>
             {
-                ConsoleTextBox.AppendText(log);
-            };*/
+                Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
+                {
+                    ConsoleTextBox.AppendText(log + "\n");
+                    ConsoleTextBox.CaretIndex = ConsoleTextBox.Text.Length;
+                    ConsoleTextBox.ScrollToEnd();
+                }));
+            };
 
             var version = Assembly
                         .GetAssembly(typeof(Core))
@@ -169,7 +189,7 @@ namespace Legacy_CTFAK_UI
         //I've had issues with memory leaking with Anaconda's GUI so I had to add this.
         private void WindowClosing(object sender, System.EventArgs e)
         {
-            Application.Current.Shutdown();
+            Environment.Exit(0);
         }
 
         //All the tabs
@@ -196,7 +216,6 @@ namespace Legacy_CTFAK_UI
             DumpSortedImagesButton.Visibility = Visibility.Visible;
             DumpImagesButton.Visibility = Visibility.Visible;
             DumpSoundsButton.Visibility = Visibility.Visible;
-            DumpMusicButton.Visibility = Visibility.Visible;
             MFATreeView.Visibility = Visibility.Visible;
             var game = currentReader.getGameData();
             MFAInfoTextBlock.Content =
@@ -246,54 +265,61 @@ namespace Legacy_CTFAK_UI
                 FrameParent.Items.Add(frameItem);
                 ObjectsTreeView.Items.Add(frameItem2);
                 frameCount++;
-                foreach (var item in frame.objects)
+                try
                 {
-                    TreeViewItem objectItem = new TreeViewItem();
-                    TreeViewItem objectItem2 = new TreeViewItem();
-                    objectItem.Header = game.frameitems[item.objectInfo].name;
-                    objectItem2.Header = game.frameitems[item.objectInfo].name;
-                    objectItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                    objectItem2.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                    objectItem.FontFamily = new FontFamily("Courier New");
-                    objectItem2.FontFamily = new FontFamily("Courier New");
-                    objectItem.FontSize = 14;
-                    objectItem2.FontSize = 14;
-                    objectItem.Padding = new Thickness(1, 1, 0, 0);
-                    objectItem2.Padding = new Thickness(1, 1, 0, 0);
-                    objectItem.Tag = $"{item.objectInfo}Object";
-                    objectItem2.Tag = $"{item.objectInfo}Object";
-                    frameItem.Items.Add(objectItem);
-                    frameItem2.Items.Add(objectItem2);
-                    if (game.frameitems[item.objectInfo].properties is ObjectCommon common)
+                    foreach (var item in frame.objects)
                     {
-                        if (common.Identifier != "SPRI" && common.Identifier != "SP") continue;
-                        if (!Settings.twofiveplus && common.Parent.ObjectType != 2) continue;
-                        int i = 0;
-                        foreach (var anim in common.Animations.AnimationDict)
+                        TreeViewItem objectItem = new TreeViewItem();
+                        TreeViewItem objectItem2 = new TreeViewItem();
+                        objectItem.Header = game.frameitems[item.objectInfo].name;
+                        objectItem2.Header = game.frameitems[item.objectInfo].name;
+                        objectItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                        objectItem2.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                        objectItem.FontFamily = new FontFamily("Courier New");
+                        objectItem2.FontFamily = new FontFamily("Courier New");
+                        objectItem.FontSize = 14;
+                        objectItem2.FontSize = 14;
+                        objectItem.Padding = new Thickness(1, 1, 0, 0);
+                        objectItem2.Padding = new Thickness(1, 1, 0, 0);
+                        objectItem.Tag = $"{item.objectInfo}Object";
+                        objectItem2.Tag = $"{item.objectInfo}Object";
+                        frameItem.Items.Add(objectItem);
+                        frameItem2.Items.Add(objectItem2);
+                        if (game.frameitems[item.objectInfo].properties is ObjectCommon common)
                         {
-                            if (common.Animations.AnimationDict[i].DirectionDict == null)
+                            if (common.Identifier != "SPRI" && common.Identifier != "SP") continue;
+                            if (!Settings.twofiveplus && common.Parent.ObjectType != 2) continue;
+                            int i = 0;
+                            foreach (var anim in common.Animations.AnimationDict)
                             {
+                                if (common.Animations.AnimationDict[i].DirectionDict == null)
+                                {
+                                    i++;
+                                    continue;
+                                }
+                                TreeViewItem animItem = new TreeViewItem();
+                                animItem.Header = $"{locRM.GetString("Animation")} {i}";
+                                animItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                                animItem.FontFamily = new FontFamily("Courier New");
+                                animItem.FontSize = 14;
+                                animItem.Padding = new Thickness(1, 1, 0, 0);
+                                animItem.Tag = $"{anim.Key}Animation";
+                                objectItem2.Items.Add(animItem);
                                 i++;
-                                continue;
                             }
-                            TreeViewItem animItem = new TreeViewItem();
-                            animItem.Header = $"{locRM.GetString("Animation")} {i}";
-                            animItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                            animItem.FontFamily = new FontFamily("Courier New");
-                            animItem.FontSize = 14;
-                            animItem.Padding = new Thickness(1, 1, 0, 0);
-                            animItem.Tag = $"{anim.Key}Animation";
-                            objectItem2.Items.Add(animItem);
-                            i++;
+                            if (objectItem2.Items.Count <= 1) objectItem2.Items.Clear();
                         }
-                        if (objectItem2.Items.Count <= 1) objectItem2.Items.Clear();
                     }
+                }
+                catch
+                {
+
                 }
             }
 
             try
             {
-                foreach (var sound in game.Sounds.Items)
+                /*foreach (var sound in game.Sounds.Items)
                 {
                     TreeViewItem soundItem = new TreeViewItem();
                     soundItem.Header = sound.Name;
@@ -304,7 +330,7 @@ namespace Legacy_CTFAK_UI
                     soundItem.Tag = soundCount;
                     SoundsTreeView.Items.Add(soundItem);
                     soundCount++;
-                }
+                }*/
             }
             catch { }
 
@@ -339,27 +365,34 @@ namespace Legacy_CTFAK_UI
             movementItemHeader.FontSize = 14;
             movementItemHeader.Padding = new Thickness(1, 1, 0, 0);
             PackedTreeView.Items.Add(movementItemHeader);
-            foreach (var item in game.packData.Items)
+            try
+            {/*
+                foreach (var item in game.packData.Items)
+                {
+                    if (item.PackFilename == null || item.PackFilename.Length == 0) continue;
+                    TreeViewItem dataItem = new TreeViewItem();
+                    dataItem.Header = item.PackFilename;
+                    dataItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                    dataItem.FontFamily = new FontFamily("Courier New");
+                    dataItem.FontSize = 14;
+                    dataItem.Padding = new Thickness(1, 1, 0, 0);
+                    dataItem.Tag = $"{packCount}Packdata";
+                    if (Path.GetExtension(item.PackFilename) == ".mfx")
+                        extItemHeader.Items.Add(dataItem);
+                    else if (Path.GetExtension(item.PackFilename) == ".dll")
+                        dllItemHeader.Items.Add(dataItem);
+                    else if (Path.GetExtension(item.PackFilename) == ".ift" || Path.GetExtension(item.PackFilename) == ".sft")
+                        filterItemHeader.Items.Add(dataItem);
+                    else if (Path.GetExtension(item.PackFilename) == ".mvx")
+                        movementItemHeader.Items.Add(dataItem);
+                    else
+                        PackedTreeView.Items.Add(dataItem);
+                    packCount++;
+                }*/
+            }
+            catch
             {
-                if (item.PackFilename == null || item.PackFilename.Length == 0) continue;
-                TreeViewItem dataItem = new TreeViewItem();
-                dataItem.Header = item.PackFilename;
-                dataItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                dataItem.FontFamily = new FontFamily("Courier New");
-                dataItem.FontSize = 14;
-                dataItem.Padding = new Thickness(1, 1, 0, 0);
-                dataItem.Tag = $"{packCount}Packdata";
-                if (Path.GetExtension(item.PackFilename) == ".mfx")
-                    extItemHeader.Items.Add(dataItem);
-                else if (Path.GetExtension(item.PackFilename) == ".dll")
-                    dllItemHeader.Items.Add(dataItem);
-                else if (Path.GetExtension(item.PackFilename) == ".ift" || Path.GetExtension(item.PackFilename) == ".sft")
-                    filterItemHeader.Items.Add(dataItem);
-                else if (Path.GetExtension(item.PackFilename) == ".mvx")
-                    movementItemHeader.Items.Add(dataItem);
-                else
-                    PackedTreeView.Items.Add(dataItem);
-                packCount++;
+
             }
 
             LoadingGrid.Visibility = Visibility.Hidden;
@@ -538,13 +571,10 @@ namespace Legacy_CTFAK_UI
                 DumpImagesButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 DumpSoundsButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 DumpSoundsButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                DumpMusicButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                DumpMusicButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 ItemInfoTextBlock.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 DumpSortedImagesProgressBar.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 DumpImagesProgressBar.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 DumpSoundsProgressBar.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                DumpMusicProgressBar.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 foreach (TreeViewItem item in MFATreeView.Items)
                 {
                     item.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
@@ -662,7 +692,6 @@ namespace Legacy_CTFAK_UI
             DumpSortedImagesButton.Content = locRM.GetString("DumpSortedImages");
             DumpImagesButton.Content = locRM.GetString("DumpImages");
             DumpSoundsButton.Content = locRM.GetString("DumpSounds");
-            DumpMusicButton.Content = locRM.GetString("DumpMusic");
             foreach (TreeViewItem item in MFATreeView.Items)
                 if (item.Header.ToString() == oldRM.GetString("Frames"))
                     item.Header = locRM.GetString("Frames");
@@ -840,6 +869,7 @@ namespace Legacy_CTFAK_UI
                 AnimationLeft.Visibility = Visibility.Visible;
                 AnimationRight.Visibility = Visibility.Visible;
                 DumpSelectedButton.Visibility = Visibility.Hidden;
+                PlayAnimationButton.Visibility = Visibility.Hidden;
             }
             else if (SelectedItem.Tag.ToString().Contains("Animation"))
             {
@@ -860,7 +890,11 @@ namespace Legacy_CTFAK_UI
                         var handle = bmp.GetHbitmap();
                         ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                         UpdateImagePreview();
-                        AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{anim.Animations.AnimationDict[int.Parse(SelectedItem.Tag.ToString().Replace("Animation", ""))].DirectionDict[0].Frames.Count}";
+                        AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{frm.Count}";
+                        if (frm.Count > 1)
+                            PlayAnimationButton.Visibility = Visibility.Visible;
+                        else
+                            PlayAnimationButton.Visibility = Visibility.Hidden;
                     }
                     catch (Exception exc) { Logger.Log(exc); }
                     try
@@ -869,7 +903,8 @@ namespace Legacy_CTFAK_UI
                             $"{locRM.GetString("Name")}: {ItemParent.Header}\n" +
                             $"{locRM.GetString("Type")}: {locRM.GetString("Active")}\n" +
                             $"{locRM.GetString("Size")}: {bmp.Width}x{bmp.Height}\n" +
-                            $"{locRM.GetString("Animations")}: {anim.Animations.AnimationDict.Count}";
+                            $"{locRM.GetString("Animations")}: {anim.Animations.AnimationDict.Count}\n" +
+                            $"Speed: {anim.Animations.AnimationDict[0].DirectionDict[0].MaxSpeed}%";
                     }
                     catch (Exception exc) { Logger.Log(exc); }
                 }
@@ -967,7 +1002,12 @@ namespace Legacy_CTFAK_UI
                         var handle = bmp.GetHbitmap();
                         ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                         UpdateImagePreview();
-                        AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Animations.AnimationDict[0].DirectionDict[0].Frames.Count}";
+                        AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{frm.Count}";
+
+                        if (frm.Count > 1)
+                            PlayAnimationButton.Visibility = Visibility.Visible;
+                        else
+                            PlayAnimationButton.Visibility = Visibility.Hidden;
                     }
                     catch (Exception exc) { Logger.Log(exc); }
                     try
@@ -976,7 +1016,8 @@ namespace Legacy_CTFAK_UI
                             $"{locRM.GetString("Name")}: {objectInfo.name}\n" +
                             $"{locRM.GetString("Type")}: {locRM.GetString("Active")}\n" +
                             $"{locRM.GetString("Size")}: {bmp.Width}x{bmp.Height}\n" +
-                            $"{locRM.GetString("Animations")}: {common.Animations.AnimationDict.Count}";
+                            $"{locRM.GetString("Animations")}: {common.Animations.AnimationDict.Count}\n" +
+                            $"Speed: {common.Animations.AnimationDict[0].DirectionDict[0].MaxSpeed}%";
                     }
                     catch (Exception exc) { Logger.Log(exc); }
                 }
@@ -1042,13 +1083,17 @@ namespace Legacy_CTFAK_UI
                         };
 
                         System.Drawing.SolidBrush brush = new System.Drawing.SolidBrush(System.Drawing.ColorTranslator.FromHtml(Color));
-                        g.DrawString(common.Text.Items[curAnimFrame].Value, new System.Drawing.Font("Courier New", (int)ObjectPicture.Width / 25, System.Drawing.FontStyle.Bold), brush, rectf, format);
-                        g.Flush();
 
+                        if (common.Text != null)
+                            g.DrawString(common.Text.Items[curAnimFrame].Value, new System.Drawing.Font("Courier New", (int)ObjectPicture.Width / 25, System.Drawing.FontStyle.Bold), brush, rectf, format);
+                        else
+                            g.DrawString("Invalid String", new System.Drawing.Font("Courier New", (int)ObjectPicture.Width / 25, System.Drawing.FontStyle.Bold), brush, rectf, format);
+                        g.Flush();
                         var handle = bmp.GetHbitmap();
                         ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                         UpdateImagePreview();
-                        AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Text.Items.Count}";
+                        if (common.Text != null)
+                            AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Text.Items.Count}";
                     }
                     catch (Exception exc) { Logger.Log(exc); }
                     try
@@ -1178,13 +1223,17 @@ namespace Legacy_CTFAK_UI
                             };
 
                             System.Drawing.SolidBrush brush = new System.Drawing.SolidBrush(System.Drawing.ColorTranslator.FromHtml(Color));
-                            g.DrawString(common.Text.Items[curAnimFrame].Value, new System.Drawing.Font("Courier New", (int)ObjectPicture.Width / 25, System.Drawing.FontStyle.Bold), brush, rectf, format);
+                            if (common.Text != null)
+                                g.DrawString(common.Text.Items[curAnimFrame].Value, new System.Drawing.Font("Courier New", (int)ObjectPicture.Width / 25, System.Drawing.FontStyle.Bold), brush, rectf, format);
+                            else
+                                g.DrawString("Invalid String", new System.Drawing.Font("Courier New", (int)ObjectPicture.Width / 25, System.Drawing.FontStyle.Bold), brush, rectf, format);
                             g.Flush();
 
                             var handle = bmp.GetHbitmap();
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                             UpdateImagePreview();
-                            AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Text.Items.Count}";
+                            if (common.Text != null)
+                                AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Text.Items.Count}";
                         }
                         catch (Exception exc) { Logger.Log(exc); }
                     }
@@ -1290,13 +1339,17 @@ namespace Legacy_CTFAK_UI
                             };
 
                             System.Drawing.SolidBrush brush = new System.Drawing.SolidBrush(System.Drawing.ColorTranslator.FromHtml(Color));
-                            g.DrawString(common.Text.Items[curAnimFrame].Value, new System.Drawing.Font("Courier New", (int)ObjectPicture.Width / 25, System.Drawing.FontStyle.Bold), brush, rectf, format);
+                            if (common.Text != null)
+                                g.DrawString(common.Text.Items[curAnimFrame].Value, new System.Drawing.Font("Courier New", (int)ObjectPicture.Width / 25, System.Drawing.FontStyle.Bold), brush, rectf, format);
+                            else
+                                g.DrawString("Invalid String", new System.Drawing.Font("Courier New", (int)ObjectPicture.Width / 25, System.Drawing.FontStyle.Bold), brush, rectf, format);
                             g.Flush();
 
                             var handle = bmp.GetHbitmap();
                             ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
                             UpdateImagePreview();
-                            AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Text.Items.Count}";
+                            if (common.Text != null)
+                                AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{common.Text.Items.Count}";
                         }
                         catch (Exception exc) { Logger.Log(exc); }
                     }
@@ -1387,6 +1440,86 @@ namespace Legacy_CTFAK_UI
             fdlg.RestoreDirectory = true;
             if (fdlg.ShowDialog() == true)
                 bitmapToSave.Save(fdlg.FileName);
+        }
+
+        private void PlayAnimation(object sender, RoutedEventArgs e)
+        {
+            if (playingAnim == true)
+                playingAnim = false;
+            else
+            {
+                TreeViewItem item = (TreeViewItem)ObjectsTreeView.SelectedItem;
+                if (item == null) return;
+                if (item.Tag.ToString().Contains("Object"))
+                {
+                    var objectInfo = currentReader.getGameData().frameitems[int.Parse(item.Tag.ToString().Replace("Object", ""))];
+                    if (objectInfo.properties is ObjectCommon common)
+                    {
+                        animFrames = common.Animations.AnimationDict[0].DirectionDict[0].Frames;
+                        animSpeed = common.Animations.AnimationDict[0].DirectionDict[0].MinSpeed;
+                        if (common.Animations.AnimationDict[0].DirectionDict[0].Repeat > 0)
+                            loopAnim = false;
+                        else
+                            loopAnim = true;
+                    }
+                }
+                else if (item.Tag.ToString().Contains("Animation"))
+                {
+                    TreeViewItem ItemParent = (TreeViewItem)item.Parent;
+                    int animNum = int.Parse(item.Tag.ToString().Replace("Animation", ""));
+                    var animInfo = currentReader.getGameData().frameitems[int.Parse(ItemParent.Tag.ToString().Replace("Object", ""))];
+                    if (animInfo.properties is ObjectCommon anim)
+                    {
+                        animFrames = anim.Animations.AnimationDict[animNum].DirectionDict[0].Frames;
+                        animSpeed = anim.Animations.AnimationDict[animNum].DirectionDict[0].MinSpeed;
+                        if (anim.Animations.AnimationDict[animNum].DirectionDict[0].Repeat > 0)
+                            loopAnim = false;
+                        else
+                            loopAnim = true;
+                    }
+                }
+                PlayAnimationButton.Content = "Stop Animation";
+                Thread animationThread = new Thread(AnimationThread);
+                animationThread.Name = "Animation";
+                animationThread.Start();
+            }
+        }
+
+        private void AnimationThread()
+        {
+            playingAnim = true;
+            while (true)
+            {
+                if (animSpeed == 0)
+                    break;
+
+                System.Drawing.Bitmap bmp = currentReader.getGameData().Images.Items[animFrames[curAnimFrame]].bitmap;
+                bitmapToSave = bmp;
+                var handle = bmp.GetHbitmap();
+
+                curAnimFrame++;
+                if (curAnimFrame >= animFrames.Count && !loopAnim)
+                    break;
+                else if (curAnimFrame >= animFrames.Count)
+                    curAnimFrame = 0;
+
+                Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
+                {
+                    ObjectPicture.Source = Imaging.CreateBitmapSourceFromHBitmap(handle, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+                    UpdateImagePreview();
+                    AnimationCurrentFrame.Content = $"{curAnimFrame + 1}/{animFrames.Count}";
+                }));
+
+                Thread.Sleep((int)Math.Round(1 / (60 * ((float)animSpeed / 100)) * 1000));
+
+                if (playingAnim == false)
+                    break;
+            }
+            playingAnim = false;
+            Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
+            {
+                PlayAnimationButton.Content = "Play Animation";
+            }));
         }
     }
 }
