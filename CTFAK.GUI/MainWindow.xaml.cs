@@ -118,7 +118,7 @@ namespace Legacy_CTFAK_UI
         public MainWindow()
         {
             InitializeComponent();
-            Core.Init();
+            CTFAKCore.Init();
 
             IntPtr hWnd = GetConsoleWindow();
             if (hWnd != IntPtr.Zero)
@@ -140,7 +140,7 @@ namespace Legacy_CTFAK_UI
             {
                 UpdateProgress(1, all, locRM.GetString("LoadSounds"));
             };
-            Logger.OnLogged += (log) =>
+            Logger.OnLogged += (log, color) =>
             {
                 Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
                 {
@@ -151,7 +151,7 @@ namespace Legacy_CTFAK_UI
             };
 
             var version = Assembly
-                        .GetAssembly(typeof(Core))
+                        .GetAssembly(typeof(CTFAKCore))
                         .GetCustomAttributes(typeof(AssemblyFileVersionAttribute), false)
                         .OfType<AssemblyFileVersionAttribute>()
                         .FirstOrDefault()?
@@ -288,7 +288,7 @@ namespace Legacy_CTFAK_UI
                         if (game.frameitems[item.objectInfo].properties is ObjectCommon common)
                         {
                             if (common.Identifier != "SPRI" && common.Identifier != "SP") continue;
-                            if (!Settings.twofiveplus && common.Parent.ObjectType != 2) continue;
+                            if (!Settings.TwoFivePlus && common.Parent.ObjectType != 2) continue;
                             int i = 0;
                             foreach (var anim in common.Animations.AnimationDict)
                             {
@@ -319,18 +319,21 @@ namespace Legacy_CTFAK_UI
 
             try
             {
-                /*foreach (var sound in game.Sounds.Items)
+                if (game.Sounds.Items != null)
                 {
-                    TreeViewItem soundItem = new TreeViewItem();
-                    soundItem.Header = sound.Name;
-                    soundItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                    soundItem.FontFamily = new FontFamily("Courier New");
-                    soundItem.FontSize = 14;
-                    soundItem.Padding = new Thickness(1, 1, 0, 0);
-                    soundItem.Tag = soundCount;
-                    SoundsTreeView.Items.Add(soundItem);
-                    soundCount++;
-                }*/
+                    foreach (var sound in game.Sounds.Items)
+                    {
+                        TreeViewItem soundItem = new TreeViewItem();
+                        soundItem.Header = sound.Name;
+                        soundItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                        soundItem.FontFamily = new FontFamily("Courier New");
+                        soundItem.FontSize = 14;
+                        soundItem.Padding = new Thickness(1, 1, 0, 0);
+                        soundItem.Tag = soundCount;
+                        SoundsTreeView.Items.Add(soundItem);
+                        soundCount++;
+                    }
+                }
             }
             catch { }
 
@@ -366,29 +369,32 @@ namespace Legacy_CTFAK_UI
             movementItemHeader.Padding = new Thickness(1, 1, 0, 0);
             PackedTreeView.Items.Add(movementItemHeader);
             try
-            {/*
-                foreach (var item in game.packData.Items)
+            {
+                if (game.packData.Items != null)
                 {
-                    if (item.PackFilename == null || item.PackFilename.Length == 0) continue;
-                    TreeViewItem dataItem = new TreeViewItem();
-                    dataItem.Header = item.PackFilename;
-                    dataItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                    dataItem.FontFamily = new FontFamily("Courier New");
-                    dataItem.FontSize = 14;
-                    dataItem.Padding = new Thickness(1, 1, 0, 0);
-                    dataItem.Tag = $"{packCount}Packdata";
-                    if (Path.GetExtension(item.PackFilename) == ".mfx")
-                        extItemHeader.Items.Add(dataItem);
-                    else if (Path.GetExtension(item.PackFilename) == ".dll")
-                        dllItemHeader.Items.Add(dataItem);
-                    else if (Path.GetExtension(item.PackFilename) == ".ift" || Path.GetExtension(item.PackFilename) == ".sft")
-                        filterItemHeader.Items.Add(dataItem);
-                    else if (Path.GetExtension(item.PackFilename) == ".mvx")
-                        movementItemHeader.Items.Add(dataItem);
-                    else
-                        PackedTreeView.Items.Add(dataItem);
-                    packCount++;
-                }*/
+                    foreach (var item in game.packData.Items)
+                    {
+                        if (item.PackFilename == null || item.PackFilename.Length == 0) continue;
+                        TreeViewItem dataItem = new TreeViewItem();
+                        dataItem.Header = item.PackFilename;
+                        dataItem.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
+                        dataItem.FontFamily = new FontFamily("Courier New");
+                        dataItem.FontSize = 14;
+                        dataItem.Padding = new Thickness(1, 1, 0, 0);
+                        dataItem.Tag = $"{packCount}Packdata";
+                        if (Path.GetExtension(item.PackFilename) == ".mfx")
+                            extItemHeader.Items.Add(dataItem);
+                        else if (Path.GetExtension(item.PackFilename) == ".dll")
+                            dllItemHeader.Items.Add(dataItem);
+                        else if (Path.GetExtension(item.PackFilename) == ".ift" || Path.GetExtension(item.PackFilename) == ".sft")
+                            filterItemHeader.Items.Add(dataItem);
+                        else if (Path.GetExtension(item.PackFilename) == ".mvx")
+                            movementItemHeader.Items.Add(dataItem);
+                        else
+                            PackedTreeView.Items.Add(dataItem);
+                        packCount++;
+                    }
+                }
             }
             catch
             {
@@ -415,12 +421,12 @@ namespace Legacy_CTFAK_UI
                 else
                     currentReader = new CCNFileReader();
 
-                Core.parameters = "";
+                CTFAKCore.parameters = "";
 
                 if (fileSelector.FileName.EndsWith(".apk"))
-                    Core.path = ApkFileReader.ExtractCCN(fileSelector.FileName);
+                    CTFAKCore.path = ApkFileReader.ExtractCCN(fileSelector.FileName);
                 else
-                    Core.path = fileSelector.FileName;
+                    CTFAKCore.path = fileSelector.FileName;
 
                 LoadingGrid.Visibility = Visibility.Visible;
                 var backgroundWorker = new BackgroundWorker();
@@ -428,7 +434,7 @@ namespace Legacy_CTFAK_UI
                 {
                     Console.WriteLine($"Reading game with \"{currentReader.Name}\"");
                     currentReader.PatchMethods();
-                    currentReader.LoadGame(Core.path);
+                    currentReader.LoadGame(CTFAKCore.path);
                 };
                 backgroundWorker.RunWorkerCompleted += (o, e) =>
                 {
@@ -590,7 +596,6 @@ namespace Legacy_CTFAK_UI
                 DumpWarningLabel.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 DumpMFAButton.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 DumpMFAButton.BorderBrush = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
-                ExtensionsCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 IconsCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 ImagesCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
                 EventsCheckbox.Foreground = new SolidColorBrush((Color)ColorConverter.ConvertFromString(Color));
@@ -699,7 +704,6 @@ namespace Legacy_CTFAK_UI
             //Dump MFA Tab
             DumpWarningLabel.Content = locRM.GetString("DumpWarning");
             DumpMFAButton.Content = locRM.GetString("DumpMFA");
-            ExtensionsCheckbox.Content = locRM.GetString("DumpExtensions");
             IconsCheckbox.Content = locRM.GetString("SetObjectIcons");
             ImagesCheckbox.Content = locRM.GetString("RemoveImages");
             EventsCheckbox.Content = locRM.GetString("RemoveEvents");
@@ -819,14 +823,10 @@ namespace Legacy_CTFAK_UI
         {
             CheckBox cb = sender as CheckBox;
             if ((bool)cb.IsChecked)
-            {
-                Core.parameters = Core.parameters + cb.Tag.ToString();
-            }
+                CTFAKCore.parameters = CTFAKCore.parameters + cb.Tag.ToString();
             else
-            {
-                Core.parameters.Replace(cb.Tag.ToString(), "");
-            }
-            ConsoleTextBox.Text = Core.parameters;
+                CTFAKCore.parameters = CTFAKCore.parameters.Replace(cb.Tag.ToString(), "");
+            ConsoleTextBox.Text = CTFAKCore.parameters;
         }
 
         private void DumpMFAButton_Click(object sender, RoutedEventArgs e)
@@ -985,7 +985,7 @@ namespace Legacy_CTFAK_UI
 
             if (objectInfo.properties is ObjectCommon common)
             {
-                if (common.Identifier == "SPRI" || common.Identifier == "SP" || !Settings.twofiveplus && common.Parent.ObjectType == 2)
+                if (common.Identifier == "SPRI" || common.Identifier == "SP" || !Settings.TwoFivePlus && common.Parent.ObjectType == 2)
                 {
                     AnimationLeft.Visibility = Visibility.Visible;
                     AnimationRight.Visibility = Visibility.Visible;
@@ -1021,7 +1021,7 @@ namespace Legacy_CTFAK_UI
                     }
                     catch (Exception exc) { Logger.Log(exc); }
                 }
-                else if (common.Identifier == "CNTR" || common.Identifier == "CN" || !Settings.twofiveplus && common.Parent.ObjectType == 7)
+                else if (common.Identifier == "CNTR" || common.Identifier == "CN" || !Settings.TwoFivePlus && common.Parent.ObjectType == 7)
                 {
                     AnimationLeft.Visibility = Visibility.Visible;
                     AnimationRight.Visibility = Visibility.Visible;
@@ -1061,7 +1061,7 @@ namespace Legacy_CTFAK_UI
                     }
                     catch (Exception exc) { Logger.Log(exc); }
                 }
-                else if (common.Identifier == "TEXT" || common.Identifier == "TE" || !Settings.twofiveplus && common.Parent.ObjectType == 3)
+                else if (common.Identifier == "TEXT" || common.Identifier == "TE" || !Settings.TwoFivePlus && common.Parent.ObjectType == 3)
                 {
                     AnimationLeft.Visibility = Visibility.Visible;
                     AnimationRight.Visibility = Visibility.Visible;
@@ -1167,7 +1167,7 @@ namespace Legacy_CTFAK_UI
                 }
                 if (currentReader.getGameData().frameitems[int.Parse(SelectedItem.Tag.ToString().Replace("Object", ""))].properties is ObjectCommon common)
                 {
-                    if (common.Identifier == "SPRI" || common.Identifier == "SP" || !Settings.twofiveplus && common.Parent.ObjectType == 2)
+                    if (common.Identifier == "SPRI" || common.Identifier == "SP" || !Settings.TwoFivePlus && common.Parent.ObjectType == 2)
                     {
                         if (common.Animations?.AnimationDict[0] == null) return;
                         if (common.Animations?.AnimationDict[0].DirectionDict[0] == null) return;
@@ -1185,7 +1185,7 @@ namespace Legacy_CTFAK_UI
                         }
                         catch (Exception exc) { Logger.Log(exc); }
                     }
-                    else if (common.Identifier == "CNTR" || common.Identifier == "CN" || !Settings.twofiveplus && common.Parent.ObjectType == 7)
+                    else if (common.Identifier == "CNTR" || common.Identifier == "CN" || !Settings.TwoFivePlus && common.Parent.ObjectType == 7)
                     {
                         var counter = common.Counters;
                         if (counter == null) return;
@@ -1204,7 +1204,7 @@ namespace Legacy_CTFAK_UI
                         }
                         catch (Exception exc) { Logger.Log(exc); }
                     }
-                    else if (common.Identifier == "TEXT" || common.Identifier == "TE" || !Settings.twofiveplus && common.Parent.ObjectType == 3)
+                    else if (common.Identifier == "TEXT" || common.Identifier == "TE" || !Settings.TwoFivePlus && common.Parent.ObjectType == 3)
                     {
                         System.Drawing.Bitmap bmp = new System.Drawing.Bitmap((int)ObjectPicture.Width, (int)ObjectPicture.Height);
                         curAnimFrame--;
@@ -1283,7 +1283,7 @@ namespace Legacy_CTFAK_UI
                 }
                 if (currentReader.getGameData().frameitems[int.Parse(SelectedItem.Tag.ToString().Replace("Object", ""))].properties is ObjectCommon common)
                 {
-                    if (common.Identifier == "SPRI" || common.Identifier == "SP" || !Settings.twofiveplus && common.Parent.ObjectType == 2)
+                    if (common.Identifier == "SPRI" || common.Identifier == "SP" || !Settings.TwoFivePlus && common.Parent.ObjectType == 2)
                     {
                         if (common.Animations?.AnimationDict[0] == null) return;
                         if (common.Animations?.AnimationDict[0].DirectionDict[0] == null) return;
@@ -1301,7 +1301,7 @@ namespace Legacy_CTFAK_UI
                         }
                         catch (Exception exc) { Logger.Log(exc); }
                     }
-                    else if (common.Identifier == "CNTR" || common.Identifier == "CN" || !Settings.twofiveplus && common.Parent.ObjectType == 7)
+                    else if (common.Identifier == "CNTR" || common.Identifier == "CN" || !Settings.TwoFivePlus && common.Parent.ObjectType == 7)
                     {
                         var counter = common.Counters;
                         if (counter == null) return;
@@ -1320,7 +1320,7 @@ namespace Legacy_CTFAK_UI
                         }
                         catch (Exception exc) { Logger.Log(exc); }
                     }
-                    else if (common.Identifier == "TEXT" || common.Identifier == "TE" || !Settings.twofiveplus && common.Parent.ObjectType == 3)
+                    else if (common.Identifier == "TEXT" || common.Identifier == "TE" || !Settings.TwoFivePlus && common.Parent.ObjectType == 3)
                     {
                         System.Drawing.Bitmap bmp = new System.Drawing.Bitmap((int)ObjectPicture.Width, (int)ObjectPicture.Height);
                         curAnimFrame++;
@@ -1405,6 +1405,8 @@ namespace Legacy_CTFAK_UI
                 dir += "Libraries\\";
             else if (Path.GetExtension(packItem.PackFilename) == ".ift" || Path.GetExtension(packItem.PackFilename) == ".sft")
                 dir += "Filters\\";
+            else if (Path.GetExtension(packItem.PackFilename) == ".mvx")
+                dir += "Movements\\";
 
             Directory.CreateDirectory(dir);
             File.WriteAllBytes(dir + packItem.PackFilename, packItem.Data);
@@ -1422,6 +1424,8 @@ namespace Legacy_CTFAK_UI
                     dir += "Libraries\\";
                 else if (Path.GetExtension(packItem.PackFilename) == ".ift" || Path.GetExtension(packItem.PackFilename) == ".sft")
                     dir += "Filters\\";
+                else if (Path.GetExtension(packItem.PackFilename) == ".mvx")
+                    dir += "Movements\\";
 
                 Directory.CreateDirectory(dir);
                 File.WriteAllBytes(dir + packItem.PackFilename, packItem.Data);
@@ -1493,15 +1497,15 @@ namespace Legacy_CTFAK_UI
                 if (animSpeed == 0)
                     break;
 
-                System.Drawing.Bitmap bmp = currentReader.getGameData().Images.Items[animFrames[curAnimFrame]].bitmap;
-                bitmapToSave = bmp;
-                var handle = bmp.GetHbitmap();
-
                 curAnimFrame++;
                 if (curAnimFrame >= animFrames.Count && !loopAnim)
                     break;
                 else if (curAnimFrame >= animFrames.Count)
                     curAnimFrame = 0;
+
+                System.Drawing.Bitmap bmp = currentReader.getGameData().Images.Items[animFrames[curAnimFrame]].bitmap;
+                bitmapToSave = bmp;
+                var handle = bmp.GetHbitmap();
 
                 Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
                 {
