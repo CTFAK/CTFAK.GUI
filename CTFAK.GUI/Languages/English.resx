@@ -324,6 +324,9 @@ using this tool.</value>
   <data name="Sounds" xml:space="preserve">
     <value>Sounds</value>
   </data>
+  <data name="StopAnimation" xml:space="preserve">
+    <value>Stop Animation</value>
+  </data>
   <data name="StopSound" xml:space="preserve">
     <value>Stop Sound</value>
   </data>

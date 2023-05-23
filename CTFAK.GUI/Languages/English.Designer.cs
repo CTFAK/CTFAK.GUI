@@ -664,6 +664,15 @@ namespace Legacy_CTFAK_UI.Languages {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Stop Animation.
+        /// </summary>
+        internal static string StopAnimation {
+            get {
+                return ResourceManager.GetString("StopAnimation", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Stop Sound.
         /// </summary>
         internal static string StopSound {

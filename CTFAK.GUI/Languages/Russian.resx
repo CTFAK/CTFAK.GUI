@@ -323,6 +323,9 @@
   <data name="Sounds" xml:space="preserve">
     <value>Звуки</value>
   </data>
+  <data name="StopAnimation" xml:space="preserve">
+    <value>Остановить анимацию</value>
+  </data>
   <data name="StopSound" xml:space="preserve">
     <value>Остановить звук</value>
   </data>

@@ -324,6 +324,9 @@ esta herramienta.</value>
   <data name="Sounds" xml:space="preserve">
     <value>Sonidos</value>
   </data>
+  <data name="StopAnimation" xml:space="preserve">
+    <value />
+  </data>
   <data name="StopSound" xml:space="preserve">
     <value>Parar Sonido</value>
   </data>

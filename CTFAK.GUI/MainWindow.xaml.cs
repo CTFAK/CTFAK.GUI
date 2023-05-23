@@ -1482,7 +1482,7 @@ namespace Legacy_CTFAK_UI
                             loopAnim = true;
                     }
                 }
-                PlayAnimationButton.Content = "Stop Animation";
+                PlayAnimationButton.Content = locRM.GetString("StopAnimation");
                 Thread animationThread = new Thread(AnimationThread);
                 animationThread.Name = "Animation";
                 animationThread.Start();
@@ -1522,7 +1522,7 @@ namespace Legacy_CTFAK_UI
             playingAnim = false;
             Dispatcher.Invoke(DispatcherPriority.Normal, new Action(delegate ()
             {
-                PlayAnimationButton.Content = "Play Animation";
+                PlayAnimationButton.Content = locRM.GetString("PlayAnimation");
             }));
         }
     }
